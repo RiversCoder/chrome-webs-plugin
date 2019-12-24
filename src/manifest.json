@@ -25,7 +25,7 @@
   [
       {
           "matches": ["<all_urls>"],
-          "js": ["scripts/vue.js","scripts/jquery.min.js","inject/index.js"],
+          "js": ["scripts/jquery.min.js","inject/index.js"],
           "run_at": "document_end"
       }
   ]

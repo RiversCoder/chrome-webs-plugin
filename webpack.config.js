@@ -21,9 +21,6 @@ const config = {
     path: __dirname + '/dist',
     filename: '[name].js',
   },
-  resolve: {
-    extensions: ['.js', '.vue'],
-  },
   module: {
     rules: [
       {
@@ -65,6 +62,13 @@ const config = {
         },
       },
       {
+        test: /\.(eot|ttf|woff|woff2?)$/,
+        loader: 'url-loader',
+        options: {
+          limit: 1000000, // 小于10000字节的图片都进行base64操作
+        }
+      },
+      /*{
         test: /\.(woff(2)?|otf|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
         loader: 'file-loader',
         options: {
@@ -72,7 +76,7 @@ const config = {
           outputPath: '/fonts/',
           emitFile: false,
         },
-      },
+      }*/
     ],
   },
   plugins: [
@@ -108,7 +112,7 @@ const config = {
     ]),
   ],
   resolve:{
-    extensions: ['.js','.vue','.json','.css'],
+    extensions: ['.js','.vue','.json','.css','.ttf','.woff'],
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
       '@': path.resolve(path.join(__dirname,"./src")), 
