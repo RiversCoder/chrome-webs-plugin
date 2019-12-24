@@ -1,0 +1,32 @@
+{
+  "name": "webs-chrome-plugin",
+  "description": "A Vue.js web extension",
+  "version": null,
+  "manifest_version": 2,
+  "icons": {
+    "48": "icons/icon_48.png",
+    "128": "icons/icon_128.png"
+  },
+  "browser_action": {
+    "default_title": "webs-chrome-plugin",
+    "default_popup": "popup/popup.html"
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "permissions": [ "contextMenus",  "tabs",  "notifications",  "webRequest",  "webRequestBlocking", "storage",  "http://*/*",  "https://*/*"  ],
+  "options_ui": {
+    "page": "options/options.html",
+    "chrome_style": true
+  },
+  "content_scripts": 
+  [
+      {
+          "matches": ["<all_urls>"],
+          "js": ["scripts/vue.js","scripts/jquery.min.js","inject/index.js"],
+          "run_at": "document_end"
+      }
+  ]
+}
