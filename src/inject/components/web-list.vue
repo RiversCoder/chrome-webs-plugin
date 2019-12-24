@@ -1,47 +1,51 @@
 <template>
   <div class="web-list">
-      <dl class="web-list__form-item">
-          <dt class="web-list__form-item--title">
-              选择爬取模式
-          </dt>
-          <dd class="web-list__form-item--content">
-              
-              <el-button type="primary" icon="el-icon-search">搜索</el-button>
-              {{  value  }}
-          </dd>
-      </dl>
+    <ul>
+      <li>
+        <span>选择爬取模式</span>
+        <el-select v-model="value" placeholder="请选择">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          ></el-option>
+        </el-select>
+      </li>
+    </ul>
   </div>
 </template>
 
 
 <script scoped>
-
 export default {
-  data(){
+  data() {
     return {
-        options: [{
-          value: '选项1',
-          label: '黄金糕'
-        }, {
-          value: '选项2',
-          label: '双皮奶'
-        }],
-        value: '选项1'
-    } 
+      options: [
+        {
+          value: "选项1",
+          label: "黄金糕"
+        },
+        {
+          value: "选项2",
+          label: "双皮奶"
+        }
+      ],
+      value: "选项1"
+    };
   },
-  created(){},
-  mounted(){},
-  methods: {
-
-  },
+  created() {},
+  mounted() {},
+  methods: {},
   components: {}
-}
-
+};
 </script>
 
 <style lang="css" scoped>
-    .web-list{
-        width:100%;height:auto;position:relative;
-    }
-
+.web-list {
+  width: 100%;
+  height: auto;
+  position: relative;
+  padding: 5px;
+}
 </style>
