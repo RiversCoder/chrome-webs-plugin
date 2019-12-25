@@ -140,4 +140,7 @@ export default {
 .web-list .web-list__list .web-list__list_ml30 {
   margin-left: 30px;
 }
+.web-list .el-select-dropdown{
+  z-index: 9999999 !important;
+}
 </style>

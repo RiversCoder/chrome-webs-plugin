@@ -25,13 +25,13 @@ export default {
 <style lang="css" scoped>
 #kedun_web_plugin {
   width: 400px;
-  height: 400px;
+  height: 700px;
   overflow-y: auto;
   background-color: #fff;
   position: fixed;
   right: 10px;
   bottom: 10px;
-  z-index: 1000;
+  z-index: 999999;
   border-radius: 10px;
   box-shadow: 0 0 10px #333;
 }

@@ -9,6 +9,9 @@ const content_script = `
     <div id="WebSubscription"></div>
     <style type="text/css">
         @import url("https://cdn.bootcss.com/element-ui/2.12.0/theme-chalk/index.css");
+        .el-select-dropdown{
+            z-index: 9999999 !important;
+          }
     </style>
 `;
 
