@@ -22,8 +22,7 @@
 export default {
   data() {
     return {
-      circleUrl:
-        "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png", // 头像图片地址
+      circleUrl: "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png", // 头像图片地址
       userName: "张三", //当前用户名
       buttonText: "开启录入模式", // 按钮文本
       buttonShow:false,
@@ -36,15 +35,25 @@ export default {
     },
     //开启录入模式
     startEntry() {
+      // 按钮文字内容
       if (!this.buttonShow) {
         this.buttonText = "关闭录入模式";
       } else {
         this.buttonText = "开启录入模式";
       }
-      this.buttonShow = !this.buttonShow
+      this.buttonShow = !this.buttonShow;
+      this.messageModal(this.buttonShow);
     },
     //切换录入列表/模板
-    switchList() {}
+    switchList() {},
+    // 开关录入录取模式
+    messageModal(onoff){
+      const event = { event: 'popup-content-onoff' };
+      console.log({ data:{onoff}, ...event });
+      chrome.runtime.sendMessage( { data:{onoff}, ...event }, function(response) {
+          console.log('收到来自页面脚本的回复：' + response);
+      });
+    }
   }
 };
 </script>

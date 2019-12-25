@@ -24,7 +24,7 @@ export default {
   methods:{
     //登录账号
     login(){
-       this.$router.push('switchPage')
+       this.$router.push('switchPage');
     },
   }
 };

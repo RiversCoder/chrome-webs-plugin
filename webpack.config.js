@@ -13,7 +13,7 @@ const config = {
   context: __dirname + '/src',
   entry: {
     'background': './background.js',
-    'inject/index': './inject/index.js',
+    'content/index': './content/index.js',
     'popup/popup': './popup/popup.js',
     'options/options': './options/options.js'
   },
