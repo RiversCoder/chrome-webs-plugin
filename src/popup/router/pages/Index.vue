@@ -9,7 +9,7 @@
       <span class="label">密码</span>
       <el-input v-model="passWord" size="small" placeholder="请输入密码" class="input"></el-input>
     </p>
-    <p><el-button type="primary" size="small" plain class="input ml15" @click="login">登 录</el-button></p>
+    <p><el-button type="primary" size="small" class="input ml15" @click="login">登 录</el-button></p>
   </div>
 </template>
 
