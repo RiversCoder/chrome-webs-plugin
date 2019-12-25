@@ -31,7 +31,7 @@ export default {
   position: fixed;
   right: 10px;
   bottom: 10px;
-  z-index: 100;
+  z-index: 1000;
   border-radius: 10px;
   box-shadow: 0 0 10px #333;
 }
