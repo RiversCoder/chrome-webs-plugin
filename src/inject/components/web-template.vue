@@ -1,6 +1,6 @@
 <template>
   <div class="web-list">
-    <ul>
+    <ul style="padding: 0;">
       <li class="web-list__list">
         <span class="web-list__text">选择网源</span>
         <el-select v-model="type" placeholder="请选择" size="small" class="web-list__input">

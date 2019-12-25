@@ -1,6 +1,6 @@
 <template>
   <div class="web-list">
-    <ul>
+    <ul style="padding: 0;">
       <li class="web-list__list">
         <span class="web-list__text">选择爬取模式</span>
         <el-select v-model="type" placeholder="请选择" size="small" class="web-list__input">
@@ -274,4 +274,5 @@ export default {
 .web-list .web-list__list .web-list__list_ml30 {
   margin-left: 30px;
 }
+
 </style>
