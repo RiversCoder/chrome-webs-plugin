@@ -33,7 +33,7 @@ export default {
   bottom: 10px;
   z-index: 999999;
   border-radius: 10px;
-  box-shadow: 0 0 10px #333;
+  box-shadow: 0 0 10px #ddd;
 }
 #kedun_web_plugin::-webkit-scrollbar {
   /*滚动条整体样式*/

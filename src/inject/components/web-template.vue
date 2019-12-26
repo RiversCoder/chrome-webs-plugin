@@ -48,7 +48,7 @@
           <span class="web-list__text_red">*</span>时间
         </span>
         <el-input v-model="webName" size="small" placeholder="暂无数据" :disabled="true" class="web-list__input"></el-input>
-        <el-button type="primary" plain size="small">激活</el-button>
+        <el-button type="primary" plain size="small" class="web-list__button_l5">激活</el-button>
       </li>
       <li class="web-list__list">
         <span class="web-list__text">
@@ -66,7 +66,7 @@
         <el-button type="primary" plain size="small" class="web-list__list--submit">预览该项</el-button>
       </li>
       <li class="web-list__list" style="text-align: center;">
-        <el-button type="primary" size="small" class="web-list__list--submit" style="margin-left: 140px;">提交</el-button>
+        <el-button type="primary" size="small" class="web-list__list--submit">提交</el-button>
       </li>
     </ul>
   </div>
@@ -126,11 +126,14 @@ export default {
 }
 .web-list .web-list__input {
   width: 200px;
+  float: left;
+  text-align: left;
 }
 .web-list .web-list__list {
   margin-bottom: 10px;
   list-style-type: none;
   display: inline-block;
+  width: 100%;
 }
 .web-list .web-list__list .web-list__list--submit {
   width: 100px;
