@@ -173,6 +173,7 @@
 
 
 <script scoped>
+import { mapState } from "vuex";
 export default {
   data() {
     return {
@@ -225,8 +226,18 @@ export default {
   created() {},
   mounted() {
     // this.initEvent();
+    // console.log(this.loginService)
   },
   methods: {
+    getlist(){
+      let url = ''
+      axios.get(url)
+      .then( res => {
+        console.log(res)
+      }).catch( err => {
+        console.log(err)
+      })
+    },
     initEvent(){
       // console.log('监听来自popup的消息')
       // 监听来自popup的消息
@@ -248,6 +259,9 @@ export default {
     },
     // 根据popup里面的开关来判定是否开关所有的弹窗
     
+  },
+   computed: {
+    // ...mapState(["loginService"]),
   },
   components: {}
 };
