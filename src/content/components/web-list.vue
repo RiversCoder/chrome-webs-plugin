@@ -89,22 +89,22 @@
           <span class="web-list__text_red">*</span> 是否动态网站
         </span>
         <div class="web-list__input">
-          <el-radio-group v-model="radio">
-            <el-radio :label="1">是</el-radio>
-            <el-radio :label="0">否</el-radio>
-          </el-radio-group>
-          <el-button type="primary" plain size="small" class="web-list__list_ml30">校验</el-button>
+        <el-radio-group v-model="staticDynamic">
+          <el-radio :label="1">是</el-radio>
+          <el-radio :label="0">否</el-radio>
+        </el-radio-group>
+        <el-button type="primary" plain size="small" class="web-list__list_ml30" @click="checkWebsiteDynamic">校验</el-button>
         </div>
       </li>
       <!-- 仅列表模式显示 -->
       <li class="web-list__list" v-if="type===2">
         <span class="web-list__text">选择列表</span>
-        <el-input v-model="webName" size="small" placeholder="请输入" class="web-list__input"></el-input>
+        <el-input v-model="selectListContent.content" size="small" placeholder="请输入" class="web-list__input" @focus="grabData"></el-input>
       </li>
       <!-- 仅列表模式显示 -->
       <li class="web-list__list" v-if="type===2">
         <span class="web-list__text">下一页</span>
-        <el-input v-model="webName" size="small" placeholder="请输入" class="web-list__input"></el-input>
+        <el-input v-model="selectNextPageContent.content" size="small" placeholder="请输入" class="web-list__input" @focus="grabDataPage"></el-input>
       </li>
       <li class="web-list__list" style="margin-bottom: 0;">
         <span class="web-list__text">自定义标签</span>
@@ -173,6 +173,9 @@
 
 
 <script scoped>
+
+const $ = global.$;
+
 import { mapState } from "vuex";
 export default {
   data() {
@@ -217,9 +220,18 @@ export default {
       city: "",
       area: "",
       value: 1,
-      type: 1, //爬取模式
+      type: 2, //爬取模式
       radio: 1,
+      staticDynamic: 1, // 是否为动态网站 1 动态网站 0 静态网站
       webName: "",
+      selectListContent: { // 选择列表内容
+        content: '',  // 展示内容
+        value: ''  // 像后台传递的内容
+      }, // 选择页面列表内容
+      selectNextPageContent:{  // 选择上下页的内容
+        content: '',
+        value: ''
+      },
       checkboxGroup: []
     };
   },
@@ -257,8 +269,97 @@ export default {
           // sendResponse('我是后台，我已收到你的消息：' + JSON.stringify(request));
       });
     },
-    // 根据popup里面的开关来判定是否开关所有的弹窗
+    // 校验当前网站是否是动态网站
+    checkWebsiteDynamic(){
+      chrome.runtime.sendMessage({data:{ href: location.href, contentSource: document.body.innerHTML }, event:'checkWebsitesDynamic', eventName:'检测当前网站是否为动态网站'}, (res) => {
+          this.$message({ type:'success', message: `当前网站为：${res==1?'动态网站':'静态网站'}`, showClose: true, duration: 2000 });
+          this.staticDynamic = res;
+      });
+    },
+    // 选择上一页 下一页 内容
+    grabDataPage(v){
+       this.bindEvent(v.target, (ele) => {
+        this.selectNextPageContent.content = $(ele).text().replace(/\s*/ig,'').substring(0,100);
+        this.selectNextPageContent.value = this.readXPath(ele);
+      });
+    },
+    // 选择列表 聚焦
+    grabData(v){
+      this.bindEvent(v.target, (ele) => {
+        this.selectListContent.content = $(ele).text().replace(/\s*/ig,'').substring(0,100);
+        this.selectListContent.value = this.readXPath(ele);
+      });
+    },
+    // 根据元素获取xpath
+    readXPath(element) {
+        if (element.id !== "") {//判断id属性，如果这个元素有id，则显 示//*[@id="xPath"]  形式内容
+            return '//*[@id=\"' + element.id + '\"]';
+        }
+        //这里需要需要主要字符串转译问题，可参考js 动态生成html时字符串和变量转译（注意引号的作用）
+        if (element == document.body) {//递归到body处，结束递归
+            return '/html/' + element.tagName.toLowerCase();
+        }
+        var ix = 1,//在nodelist中的位置，且每次点击初始化
+            siblings = element.parentNode.childNodes;//同级的子元素
     
+        for (var i = 0, l = siblings.length; i < l; i++) {
+            var sibling = siblings[i];
+            //如果这个元素是siblings数组中的元素，则执行递归操作
+            if (sibling == element) {
+                return this.readXPath(element.parentNode) + '/' + element.tagName.toLowerCase() + '[' + (ix) + ']';
+                //如果不符合，判断是否是element元素，并且是否是相同元素，如果是相同的就开始累加
+            } else if (sibling.nodeType == 1 && sibling.tagName == element.tagName) {
+                ix++;
+            }
+        }
+    },
+    // 给元素绑定事件 且获取元素的内容
+    bindEvent(v, fn){
+        let This  = this;
+        
+        //清除所有样式
+        function removeAllClass(){
+            $('*').each(function(){
+                $(this).removeClass('ws-grab-class');
+            })
+        }
+
+        $('*').on('mouseover',function(e){
+
+            //清除所有
+            removeAllClass();
+
+            //添加样式
+            $(this).addClass('ws-grab-class');
+
+            $(this).on('click',function(e){
+
+                removeAllClass();
+                $(this).addClass('ws-grab-class');
+
+                // callback
+                fn&&fn(this);
+
+                $("*").off();
+                // This.$emit('rebind');
+                //取消默认事件
+                e.preventDefault();
+                return false;
+                
+            });
+
+            //取消冒泡
+            e.cancelBubble = true;
+            e.stopPropagation();
+        });
+
+        $('#kedun_web_plugin').find('*').on('mouseover',function(e){
+            $(this).removeClass('ws-grab-class');
+            e.cancelBubble = true;
+            e.stopPropagation();
+        });
+    }
+
   },
    computed: {
     // ...mapState(["loginService"]),
