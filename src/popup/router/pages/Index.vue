@@ -9,11 +9,14 @@
       <span class="label">密码</span>
       <el-input v-model="passWord" size="small" placeholder="请输入密码" class="input"></el-input>
     </p>
-    <p><el-button type="primary" size="small" class="input ml15" @click="login">登 录</el-button></p>
+    <p>
+      <el-button type="primary" size="small" class="input ml15" @click="login">登 录</el-button>
+    </p>
   </div>
 </template>
 
 <script>
+import { mapState } from "vuex";
 export default {
   data() {
     return {
@@ -21,11 +24,34 @@ export default {
       passWord: ""
     };
   },
-  methods:{
+  mounted() {
+  },
+  methods: {
     //登录账号
-    login(){
-       this.$router.push('switchPage');
-    },
+    login() {
+      let url = `${this.loginService}/auths/user/login`
+      let data = {
+        loginName: this.loginNumber,
+        loginPwd: this.passWord,
+        system: "S11SU01",
+        validCode: "string",
+      }
+      axios({
+        url: url,
+        methods: "post",
+        data: data
+      })
+        .then(res => {
+          console.info(res);
+        })
+        .catch(err => {
+          console.info(err);
+        });
+      //  this.$router.push('switchPage');
+    }
+  },
+  computed: {
+    ...mapState(["loginService"])
   }
 };
 </script>

@@ -10,7 +10,7 @@
       </p>
     </div>
     <div class="buts">
-      <el-button type="primary" size="small" plain class="but1" @click="startEntry">{{buttonText}}</el-button>
+      <el-button type="primary" size="medium"  class="but1" @click="startEntry">{{buttonText}}</el-button>
     </div>
     <div class="buts">
       <el-button type="success" size="small" plain class="but2" @click="switchList" :disabled="disableStatus">{{switchButtonText}}</el-button>

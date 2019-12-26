@@ -35,7 +35,7 @@
         <span class="web-list__text">
           <span class="web-list__text_red">*</span> 行业类别
         </span>
-        <div class="web-list__group_box">
+        <div class="web-list__group_box web-list__input">
           <el-checkbox-group v-model="checkboxGroup" size="small" class="web-list__group">
             <el-checkbox
               :label="item.label"
@@ -77,20 +77,24 @@
         <span class="web-list__text">
           <span class="web-list__text_red">*</span> 是否海内外
         </span>
-        <el-radio-group v-model="radio">
-          <el-radio :label="1">是</el-radio>
-          <el-radio :label="0">否</el-radio>
-        </el-radio-group>
+        <div class="web-list__input" style="margin-top: 10px;">
+          <el-radio-group v-model="radio" class="web-list__input">
+            <el-radio :label="1">是</el-radio>
+            <el-radio :label="0">否</el-radio>
+          </el-radio-group>
+        </div>
       </li>
       <li class="web-list__list" style="line-height: 35px;">
         <span class="web-list__text">
           <span class="web-list__text_red">*</span> 是否动态网站
         </span>
+        <div class="web-list__input">
         <el-radio-group v-model="staticDynamic">
           <el-radio :label="1">是</el-radio>
           <el-radio :label="0">否</el-radio>
         </el-radio-group>
         <el-button type="primary" plain size="small" class="web-list__list_ml30" @click="checkWebsiteDynamic">校验</el-button>
+        </div>
       </li>
       <!-- 仅列表模式显示 -->
       <li class="web-list__list" v-if="type===2">
@@ -104,7 +108,7 @@
       </li>
       <li class="web-list__list" style="margin-bottom: 0;">
         <span class="web-list__text">自定义标签</span>
-        <div class="web-list__group_box">
+        <div class="web-list__group_box web-list__input">
           <el-checkbox-group v-model="checkboxGroup" size="small" class="web-list__group">
             <el-checkbox
               :label="item.label"
@@ -120,30 +124,32 @@
         <span class="web-list__text">
           <span class="web-list__text_red">*</span> 所属地域
         </span>
-        <el-select v-model="province" placeholder="请选择" size="small" style="width:83px">
-          <el-option
-            v-for="item in provinceList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-        <el-select v-model="city" placeholder="请选择" size="small" style="width:83px">
-          <el-option
-            v-for="item in cityList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-        <el-select v-model="area" placeholder="请选择" size="small" style="width:83px">
-          <el-option
-            v-for="item in areaList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
+        <div class="web-list__input" style="width: 265px;">
+          <el-select v-model="province" placeholder="请选择" size="small" style="width:83px">
+            <el-option
+              v-for="item in provinceList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+          <el-select v-model="city" placeholder="请选择" size="small" style="width:83px">
+            <el-option
+              v-for="item in cityList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+          <el-select v-model="area" placeholder="请选择" size="small" style="width:83px">
+            <el-option
+              v-for="item in areaList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </div>
       </li>
       <li class="web-list__list">
         <span class="web-list__text">
@@ -170,6 +176,7 @@
 
 const $ = global.$;
 
+import { mapState } from "vuex";
 export default {
   data() {
     return {
@@ -231,8 +238,18 @@ export default {
   created() {},
   mounted() {
     // this.initEvent();
+    // console.log(this.loginService)
   },
   methods: {
+    getlist(){
+      let url = ''
+      axios.get(url)
+      .then( res => {
+        console.log(res)
+      }).catch( err => {
+        console.log(err)
+      })
+    },
     initEvent(){
       // console.log('监听来自popup的消息')
       // 监听来自popup的消息
@@ -344,6 +361,9 @@ export default {
     }
 
   },
+   computed: {
+    // ...mapState(["loginService"]),
+  },
   components: {}
 };
 </script>
@@ -385,19 +405,21 @@ export default {
 }
 .web-list .web-list__input {
   width: 255px;
+  float: left;
+  text-align: left;
 }
 .web-list .web-list__list {
   margin-bottom: 10px;
   list-style-type: none;
   display: inline-block;
+  width: 100%;
 }
 .web-list .web-list__list .web-list__list--submit {
   width: 100px;
   margin-top: 10px;
-  margin-left: 140px;
+  /* margin-left: 140px; */
 }
 .web-list .web-list__list .web-list__list_ml30 {
   margin-left: 30px;
 }
-
 </style>
