@@ -4,7 +4,7 @@
       <p class="title">网源录入插件</p>
       <p class="message">
         <el-avatar size="small" :src="circleUrl" class="img"></el-avatar>
-        <span>{{userName}}</span>
+        <span>{{userInfo.userName}}</span>
         <span class="line">|</span>
         <span class="login_out" @click="loginOut">退出</span>
       </p>
@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 export default {
   data() {
     return {
@@ -60,8 +61,20 @@ export default {
       });
     },
     //退出登录
-    loginOut() {
-      this.$router.push("/");
+     loginOut () {
+      let url = `${this.loginService}user/loginout`
+      this.axios.get(url, {
+        headers: {
+          system: 'S11SU01',
+          token: this.hasToken
+        }
+      }).then(response => {
+        this.$store.commit('changehasToken', '')
+        this.$router.push("/");
+      })
+        .catch(error => {
+          this.bus.$emit('showNotice', { content: '网络错误', type: 'info' })
+        });
     },
     // 向页面窗口发送信息
     sendMessageToContentScript(message, callback){
@@ -112,6 +125,9 @@ export default {
           console.log('收到来自页面脚本的回复：' + response);
       });
     }
+  },
+  computed:{
+    ...mapState(['loginService','userInfo','hasToken'])
   }
 };
 </script>
@@ -119,7 +135,7 @@ export default {
 <style lang="scss" scoped>
 .content {
   width: 400px;
-  height: 500px;
+  height: 300px;
   font-size: 14px;
   color: #3b3b3b;
   .top {
@@ -150,7 +166,7 @@ export default {
     .but1 {
       width: 135px;
       margin-bottom: 20px;
-      margin-top: 100px;
+      margin-top: 50px;
     }
     .but2 {
       width: 135px;

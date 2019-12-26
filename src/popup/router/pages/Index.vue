@@ -3,11 +3,11 @@
     <p class="title">网源录入插件登录</p>
     <p class="mb30">
       <span class="label">账号</span>
-      <el-input v-model="loginNumber" size="small" placeholder="请输入账号" class="input"></el-input>
+      <el-input v-model.trim="loginNumber" size="small" placeholder="请输入账号" class="input"></el-input>
     </p>
     <p class="mb30">
       <span class="label">密码</span>
-      <el-input v-model="passWord" size="small" placeholder="请输入密码" class="input"></el-input>
+      <el-input v-model.trim="passWord" size="small" placeholder="请输入密码" show-password class="input"></el-input>
     </p>
     <p>
       <el-button type="primary" size="small" class="input ml15" @click="login">登 录</el-button>
@@ -24,31 +24,60 @@ export default {
       passWord: ""
     };
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     //登录账号
     login() {
-      let url = `${this.loginService}/auths/user/login`
+      if(this.loginNumber ===''){
+        this.$message({
+          message: '请输入账号!',
+          type: 'warning'
+        });
+        return 
+      }
+      if(this.passWord ===''){
+        this.$message({
+          message: '请输入密码!',
+          type: 'warning'
+        });
+        return
+      }
+      let url = `${this.loginService}auths/user/login`;
       let data = {
         loginName: this.loginNumber,
         loginPwd: this.passWord,
         system: "S11SU01",
-        validCode: "string",
-      }
-      axios({
-        url: url,
-        methods: "post",
-        data: data
-      })
+        validCode: "string"
+      };
+      this.axios
+        .post(url, data)
         .then(res => {
-          console.info(res);
+           let token = res.data.data
+           console.log(token)
+           this.$store.commit('changehasToken', token)
+           this.$router.push("switchPage");
+           this.getUserInfo(token)
         })
         .catch(err => {
-          console.info(err);
+          console.log(err);
         });
-      //  this.$router.push('switchPage');
-    }
+    },
+    //获取用户信息
+     getUserInfo (token) {
+      let url = `${this.loginService}auths/userInfo`
+      let header = { headers: { 'token': token } }
+      this.axios.get(url, header)
+        .then(res => {
+          let CODE = res.data.code
+          if (CODE.search(/^R/) > -1) {
+            let data = res.data.data;
+            this.$store.commit('changeuserInfo', res.data.data);
+          }
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
   },
   computed: {
     ...mapState(["loginService"])
@@ -59,7 +88,7 @@ export default {
 <style lang="scss" scoped>
 .login {
   width: 400px;
-  height: 500px;
+  height: 300px;
   font-size: 16px;
   color: #3b3b3b;
   .title {

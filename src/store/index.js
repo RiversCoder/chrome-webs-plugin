@@ -9,8 +9,15 @@ import { devState,testState} from './state'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  state: devState,
+  state: testState,
   getters,
-  mutations,
+  mutations:{
+    changehasToken (state, value) {
+      state.hasToken = value
+    },
+    changeuserInfo (state, value) {
+      state.userInfo = value
+    },
+  },
   actions
 })

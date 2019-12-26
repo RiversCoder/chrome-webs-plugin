@@ -7,7 +7,9 @@ const test = {
     loginService: 'http://121.201.107.118:18012/', // 登录验证服务
 }
 const commonState = {
-    foo: 'bar'
+    foo: 'bar',
+    hasToken:'',// token
+    userInfo:{},//用户信息
   }
 export const devState = Object.assign({},dev,commonState)
 export const testState = Object.assign({},test,commonState)
