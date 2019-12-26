@@ -218,19 +218,30 @@ export default {
   },
   created() {},
   mounted() {
-    this.initEvent();
+    // this.initEvent();
   },
   methods: {
     initEvent(){
-      console.log('监听来自popup的消息')
+      // console.log('监听来自popup的消息')
       // 监听来自popup的消息
-      chrome.tabs.onMessage.addListener(function(request, sender, sendResponse)
+      chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
       {
           console.log('收到来自content-script的消息：');
-          console.log(request, sender, sendResponse);
-          sendResponse('我是后台，我已收到你的消息：' + JSON.stringify(request));
+          console.log(request);
+          console.log(sender);
+          switch(request.event){
+            case 'popup-content-onoff':
+              //
+              break;
+            case 'other':
+              // 
+              break;
+          }
+          // sendResponse('我是后台，我已收到你的消息：' + JSON.stringify(request));
       });
-    }
+    },
+    // 根据popup里面的开关来判定是否开关所有的弹窗
+    
   },
   components: {}
 };

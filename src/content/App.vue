@@ -1,10 +1,12 @@
 <template>
-  <div id="kedun_web_plugin">
-    <!-- 网源插件列表 -->
-    <WebList></WebList>
+  <div id="kedun_web_plugin" v-show="onoff">
+    <section >
+      <!-- 网源插件列表 -->
+      <WebList v-show="status == 1"></WebList>
 
-    <!-- 网站模板 -->
-    <!-- <webTemplate></webTemplate> -->
+      <!-- 网站模板 -->
+      <webTemplate v-show="status == 2"></webTemplate>
+    </section>
   </div>
 </template>
 
@@ -13,11 +15,53 @@ import WebList from "./components/web-list.vue";
 import webTemplate from "./components/web-template.vue";
 export default {
   data() {
-    return {};
+    return {
+      onoff: false,
+      status: 1 // 1 代表网源插件表单框 2 代表网站模板盒子
+    };
   },
   components: {
     WebList,
     webTemplate
+  },
+  mounted(){
+    // 初始化相关的状态
+    this.init();
+    this.initEvent();
+  },
+  methods:{
+    // 初始化方法 本地存储的一些状态都可以放在 init 方法里面
+    init(){
+      // 获取当前盒子的的状态
+      chrome.storage.sync.get({kedunWebPluginBoxOnoff: false, listTemplateIndexStatus: 1},(item) => {
+        this.onoff = item.kedunWebPluginBoxOnoff;
+        this.status = item.listTemplateIndexStatus;
+      });
+    },
+     initEvent(){
+      // console.log('监听来自popup的消息')
+      // 监听来自popup的消息
+      chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+          console.log(request);
+          switch(request.event){
+            case 'popup-content-onoff':
+              // 切换网源盒子显示
+              this.toggleBoxOff(request.data);
+              break;
+            case 'popup-content-status':
+              this.toggleBoxContent(request.data);
+              break;
+          }
+          // sendResponse('我是后台，我已收到你的消息：' + JSON.stringify(request));
+      });
+    },
+    // 根据popup里面的开关来判定是否开关所有的弹窗
+    toggleBoxOff(data){
+      this.onoff = data.onoff;
+    },
+    toggleBoxContent(data){
+      this.status = data.listTemplateIndexStatus;
+    }
   }
 };
 </script>
