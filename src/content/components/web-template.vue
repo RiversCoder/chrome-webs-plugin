@@ -74,86 +74,85 @@
 
 
 <script scoped>
-export default {
-  data() {
-    return {
-      options: [],
-      type: "", //
-      webName: ""
-    };
-  },
-  created() {},
-  mounted() {
-    this.initEvent();
-  },
-  methods: {
-    initEvent(){
-      // ... 
+  export default {
+    data() {
+      return {
+        options: [],
+        type: "",  //
+        webName: ""
+      };
     },
-    activeHoverClick(){
-      // 开始获取当前页面里面的内容
-      
-    }
-  },
-  components: {}
-};
+    created() {},
+    mounted() {
+      this.initEvent();
+    },
+    methods: {
+      initEvent(){
+        // ... 
+      },
+      activeHoverClick(){
+        // 开始获取当前页面里面的内容
+      }
+    },
+    components: {}
+  };
 </script>
 
 <style lang="css" scoped>
-.web-list {
-  width: 100%;
-  height: auto;
-  position: relative;
-  padding: 20px 0;
-}
-.web-list .web-list__text {
-  width: 100px;
-  float: left;
-  font-weight: 100;
-  font-size: 14px;
-  display: inline-block;
-  line-height: 35px;
-  text-align: right;
-  padding-right: 10px;
-}
-.web-list .web-list__text .web-list__text_red {
-  color: red;
-  padding-right: 3px;
-}
-.web-list .web-list__group_box {
-  display: inline-flex;
-  width: 230px;
-}
-.web-list .web-list__group_box .web-list__group {
-  width: 250px;
-  display: inline;
-}
-.web-list .web-list__group_box .web-list__group--checkbox {
-  float: left;
-  margin-bottom: 10px;
-  margin-right: 10px;
-  margin-left: 0 !important;
-}
-.web-list .web-list__input {
-  width: 200px;
-  float: left;
-  text-align: left;
-}
-.web-list .web-list__list {
-  margin-bottom: 10px;
-  list-style-type: none;
-  display: inline-block;
-  width: 100%;
-}
-.web-list .web-list__list .web-list__list--submit {
-  width: 100px;
-  margin-top: 10px;
-  margin-left: 0;
-}
-.web-list .web-list__list .web-list__list_ml30 {
-  margin-left: 30px;
-}
-.web-list .el-select-dropdown{
-  z-index: 9999999 !important;
-}
+  .web-list {
+    width: 100%;
+    height: auto;
+    position: relative;
+    padding: 20px 0;
+  }
+  .web-list .web-list__text {
+    width: 100px;
+    float: left;
+    font-weight: 100;
+    font-size: 14px;
+    display: inline-block;
+    line-height: 35px;
+    text-align: right;
+    padding-right: 10px;
+  }
+  .web-list .web-list__text .web-list__text_red {
+    color: red;
+    padding-right: 3px;
+  }
+  .web-list .web-list__group_box {
+    display: inline-flex;
+    width: 230px;
+  }
+  .web-list .web-list__group_box .web-list__group {
+    width: 250px;
+    display: inline;
+  }
+  .web-list .web-list__group_box .web-list__group--checkbox {
+    float: left;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    margin-left: 0 !important;
+  }
+  .web-list .web-list__input {
+    width: 200px;
+    float: left;
+    text-align: left;
+  }
+  .web-list .web-list__list {
+    margin-bottom: 10px;
+    list-style-type: none;
+    display: inline-block;
+    width: 100%;
+  }
+  .web-list .web-list__list .web-list__list--submit {
+    width: 100px;
+    margin-top: 10px;
+    margin-left: 0;
+  }
+  .web-list .web-list__list .web-list__list_ml30 {
+    margin-left: 30px;
+  }
+  .web-list .el-select-dropdown{
+    z-index: 9999999 !important;
+  }
 </style>
