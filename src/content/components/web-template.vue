@@ -34,7 +34,7 @@
           <span class="web-list__text_red">*</span>标题
         </span>
         <el-input v-model="webName" size="small" placeholder="暂无数据" :disabled="true" class="web-list__input"></el-input>
-        <el-button type="primary" plain size="small">激活</el-button>
+        <el-button type="primary" plain size="small" @click="activeHoverClick">激活</el-button>
       </li>
       <li class="web-list__list">
         <span class="web-list__text">
@@ -88,14 +88,11 @@ export default {
   },
   methods: {
     initEvent(){
-      console.log('监听来自content-script的消息')
-      // 监听来自popup的消息
-      chrome.tabs.onMessage.addListener(function(request, sender, sendResponse)
-      {
-          // console.log('收到来自content-script的消息：');
-          console.log(request, sender, sendResponse);
-          // sendResponse('我是后台，我已收到你的消息：' + JSON.stringify(request));
-      });
+      // ... 
+    },
+    activeHoverClick(){
+      // 开始获取当前页面里面的内容
+      
     }
   },
   components: {}

@@ -53,7 +53,7 @@ export default {
             this.disableStatus = true;
           }
         }
-        
+
         // 判断是否存在切换状态
         if(typeof item.listTemplateIndexStatus !== "undefined"){
           this.listTemplateIndexStatus = item.listTemplateIndexStatus;
