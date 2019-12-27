@@ -3,9 +3,9 @@
     <ul style="padding: 0;">
       <li class="web-list__list">
         <span class="web-list__text">选择网源</span>
-        <el-select v-model="type" placeholder="请选择" size="small" class="web-list__input">
+        <el-select v-model="webSource.value" placeholder="请选择" size="small" class="web-list__input">
           <el-option
-            v-for="item in options"
+            v-for="item in webSource.options"
             :key="item.value"
             :label="item.label"
             :value="item.value"
@@ -14,9 +14,9 @@
       </li>
       <li class="web-list__list">
         <span class="web-list__text">选择已有模板</span>
-        <el-select v-model="type" placeholder="请选择" size="small" class="web-list__input">
+        <el-select v-model="templateList.value" placeholder="请选择" size="small" class="web-list__input" @change="getChangeTemplate">
           <el-option
-            v-for="item in options"
+            v-for="item in templateList.options"
             :key="item.value"
             :label="item.label"
             :value="item.value"
@@ -74,15 +74,39 @@
 
 
 <script scoped>
+  import { mapState } from 'vuex';
   export default {
     data() {
       return {
+        // 网源列表
+        webSource: {
+          options: [/*{value:'',label:''}*/],
+          value: ''
+        },
+        // 模板列表
+        templateList: {
+          options: [/*{value:'',label:''}*/],
+          value: '',
+          elementsInfo: [/*{
+            id: '',
+            titleXpath: '',
+            authorXpath: '',
+            createdAtXpath: '',
+            contentXpath: '',
+            websiteAttrId: '',
+            websiteModulesId: '',
+            checkNumber: 0 // 检测碰撞数值
+          }*/]
+        },
         options: [],
         type: "",  //
         webName: ""
       };
     },
-    created() {},
+    created() {
+      // 1. 获取网源列表
+      this.initRequest();
+    },
     mounted() {
       this.initEvent();
     },
@@ -90,11 +114,121 @@
       initEvent(){
         // ... 
       },
+      // 初始化请求 获取网源列表
+      initRequest(){
+
+        let domain = global.location.host;
+        let url = `${this.netService}web-module/domain?domain=${domain}`;
+        let headers = { system: 'S11SU01', token: this.userInfo.token };
+        
+        // 获取网源列表
+        chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:'请求：获取网源列表'}, (response) => {
+          console.log(response)
+          if(response.code == 0){
+            this.webSource.options = [];
+            response.data.forEach(v => {
+              this.webSource.options.push({ label: v.name, value: v.id });
+            });
+            // 初始化显示第一个网源
+            this.webSource.value = this.webSource.options[0].value;
+          }else{
+            this.$message({ type:'error', message: response.msg, showClose: true});
+          }
+        });
+
+        // 获取模板列表
+        this.getTemplateListBySourceId();
+
+      },
+      // 根据网源列表ID 获取模板列表
+      getTemplateListBySourceId(){
+
+        let domain = global.location.host;
+        let url = `${this.netService}web-template/domain/list?domain=${domain}`;
+        let headers = { system: 'S11SU01', token: this.userInfo.token };
+
+        // 获取网源模板列表
+        chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:'获取网源模板列表'}, (response) => {
+          console.log(response);
+          if(response.code == 0){
+            this.templateList.options = [];
+            this.templateList.elementsInfo = [];
+            response.data.forEach(v => {
+              this.templateList.options.push({ label: v.name, value: v.id });
+              // 获取当前模板对应的xpath信息
+              this.templateList.elementsInfo.push({
+                id: v.id,
+                websiteAttrId: v.websiteAttrId,
+                checkNumber: 0,
+                titleXpath: v.titleXpath,
+                authorXpath: v.authorXpath,
+                createdAtXpath: v.createdAtXpath,
+                contentXpath: v.contentXpath,
+                websiteModulesId: v.websiteModulesId,
+              });
+            });
+            // 新增模板内容
+            this.templateList.options.push({ label: '新增模板', value: 'add-template-content' });
+
+            // 遍历xpath信息 获取元素 自动选择模板
+            this.eachXpathElements();
+
+          }else{
+            this.$message({ type:'error', message: response.msg, showClose: true});
+          }
+        });
+
+      },
+      getElebyXpath(xpath) {
+        var result = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null);
+        return result.iterateNext()
+      },
+      // 遍历xpath信息 获取元素 自动选择模板
+      eachXpathElements(){
+        const xpath_keys = ['titleXpath','authorXpath','createdXpath','contentXpath'];
+        let match_times = 0;
+        let check_numbers = [];
+
+        this.templateList.elementsInfo.forEach(v => {
+          match_times = 0;
+          xpath_keys.forEach(key => {
+            if(v[key] && this.getElebyXpath(v[key])){
+              match_times += 1;
+            }
+          })
+          v.checkNumber = match_times;
+          // check_numbers.push({value:v.checkNumber, id: v.id});
+        });
+
+        // 排序
+        this.templateList.elementsInfo.sort((a, b) => {
+          return b.checkNumber - a.checkNumber;
+        });
+
+        // 确定是否有匹配 0 全部不匹配
+        if(this.templateList.elementsInfo[0].checkNumber <= 0){
+          
+        }else{
+
+        }
+        
+
+      },
+      // 选择模板内容
+      getChangeTemplate(){
+        // 如果选择 新增模板 然后进行选择
+        if(this.templateList.value == 'add-template-content'){
+
+        }
+      },
       activeHoverClick(){
         // 开始获取当前页面里面的内容
       }
     },
-    components: {}
+    components: {},
+    computed:{
+      ...mapState(['loginService','userInfo','netService'])
+    }
   };
 </script>
 

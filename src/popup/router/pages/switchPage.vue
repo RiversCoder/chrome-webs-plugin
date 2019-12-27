@@ -62,7 +62,7 @@ export default {
         if(typeof item.loginInfo.userName !== "undefined"){
           this.userName = item.loginInfo.userName;
         }
- console.log(item.loginInfo.userName)
+
       });
     },
     //退出登录
@@ -75,22 +75,23 @@ export default {
         }
       }).then(response => {
         this.$store.commit('changehasToken', '')
+        this.$store.commit('changeuserInfo', null);
         this.$router.push("/");
         // 清除登录状态
-         let info = {
-             loginStatus: false,
-             token: '',
-             userName: '',
-           }
-            chrome.storage.sync.set({loginInfo:info});
-            // 把当前的状态存入 storage
-            this.buttonShow = false
-          chrome.storage.sync.set({kedunWebPluginBoxOnoff: this.buttonShow});
-          this.messageModal(this.buttonShow);
-      })  
-        .catch(error => {
-          this.bus.$emit('showNotice', { content: '网络错误', type: 'info' })
-        });
+        let info = {
+          loginStatus: false,
+          token: '',
+          userName: '',
+        }
+        // 移除 loginInfo
+        chrome.storage.sync.remove('loginInfo');
+        // 把当前的状态存入 storage
+        this.buttonShow = false
+        chrome.storage.sync.set({kedunWebPluginBoxOnoff: this.buttonShow});
+        this.messageModal(this.buttonShow);
+      }).catch(error => {
+        this.bus.$emit('showNotice', { content: '网络错误', type: 'info' })
+      });
     },
     // 向页面窗口发送信息
     sendMessageToContentScript(message, callback){

@@ -20,26 +20,25 @@ import { mapState } from "vuex";
 export default {
   data() {
     return {
-      loginNumber: "",
-      passWord: ""
+      loginNumber: "hzli01",
+      passWord: "123456"
     };
   },
   mounted() {
-    this.init()
+    // this.init()
   },
   methods: {
-    init(){
-      // 获取当前登录状态
+    init() {
+      // 获取当前登录状态 { loginStatus: true, token: token, userName: data.userName }
       chrome.storage.sync.get({loginInfo: {}},(item) => {
         if(!item) return;
-        console.log(item)
         // 判断是否登录状态
-        if(typeof item.loginInfo.loginStatus !== "undefined" && item.loginInfo.loginStatus){
+        if(typeof item.loginInfo !== "undefined" && item.loginInfo.loginStatus){
           this.$router.push("switchPage");
         }
       });
     },
-    //登录账号
+    // 登录账号
     login() {
       if(this.loginNumber ===''){
         this.$message({
@@ -73,7 +72,7 @@ export default {
           console.log(err);
         });
     },
-    //获取用户信息
+    // 获取用户信息
      getUserInfo (token) {
       let url = `${this.loginService}auths/userInfo`
       let header = { headers: { 'token': token } }
@@ -82,13 +81,14 @@ export default {
           let CODE = res.data.code
           if (CODE.search(/^R/) > -1) {
             let data = res.data.data;
-            this.$store.commit('changeuserInfo', data);
+            
             // 设置当前的 登录 状态
-           let info = {
-             loginStatus: true,
-             token: token,
-             userName: data.userName,
-           }
+            let info = {
+              loginStatus: true,
+              token: token,
+              userName: data.userName,
+            }
+            this.$store.commit('changeuserInfo', info);
             chrome.storage.sync.set({loginInfo:info});
             this.$router.push("switchPage");
           }

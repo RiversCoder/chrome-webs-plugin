@@ -11,7 +11,7 @@ const test = {
 const commonState = {
     foo: 'bar',
     hasToken:'',// token
-    userInfo:{},//用户信息
-  }
+    userInfo: {},//用户信息
+}
 export const devState = Object.assign({},dev,commonState)
 export const testState = Object.assign({},test,commonState)

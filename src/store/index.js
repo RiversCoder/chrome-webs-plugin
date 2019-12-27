@@ -2,14 +2,14 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import * as getters from './getters'
-import mutations from './mutations'
+// import mutations from './mutations'
 import * as actions from './actions'
-import { devState,testState} from './state' 
+import { devState, testState} from './state' 
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  state: testState,
+  state: devState,
   getters,
   mutations:{
     changehasToken (state, value) {
@@ -21,3 +21,4 @@ export default new Vuex.Store({
   },
   actions
 })
+

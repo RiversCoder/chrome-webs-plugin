@@ -3,8 +3,11 @@ const $ = global.$;
 import ElementUI from 'element-ui';
 import '@/css/index.css';
 import App from './App.vue';
+import store from '../store';
+import axios from './config/axios';
 
 Vue.use(ElementUI);
+Vue.prototype.axios = axios;
 const content_script = ` 
     <div id="WebSubscription"></div>
     <style type="text/css">
@@ -24,6 +27,7 @@ $(document).ready(()=>{
     const timer = setTimeout(() => {
         new Vue({
             el: '#WebSubscription',
+            store,
             render: h => h(App)
         });
         // clearTimeout(timer)

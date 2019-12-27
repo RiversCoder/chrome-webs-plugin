@@ -1,5 +1,4 @@
-import { checkWebsiteDynamic } from './scripts/background-function.js';
-
+import { checkWebsiteDynamic, requestJsonData } from './scripts/background-function.js';
 
 // 监听 content-script 传递过来的信息
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
@@ -11,6 +10,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
                 sendResponse(result);
             })
             break;
+        // 在脚本中内容请求
+        case 'requestJsonData':
+            requestJsonData(request.data).then(result => {
+                console.log(result)
+                sendResponse(result);
+            })
+            break;
         case 'other':
             break;
     }
@@ -19,7 +25,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
 // 监听 tab选项卡 切换 获取当前插件开关状态
 chrome.tabs.onActivated.addListener((activeInfo) => {
     // activeInfo -> {tabId:1,windowId:2}
-    
+
     chrome.storage.sync.get({kedunWebPluginBoxOnoff: false, listTemplateIndexStatus: 1},(item) => {
         if(!item) return;
 

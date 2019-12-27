@@ -1,14 +1,15 @@
 import Vue from 'vue'
 import App from './App'
 import store from '../store'
-import router from './router'
 import axios from 'axios'
+import router from './router'
 import ElementUI from 'element-ui';
 import '@/css/index.css';
 
 
 Vue.use(ElementUI);
 Vue.prototype.axios = axios
+Vue.prototype.bus = new Vue();
 
 /* eslint-disable no-new */
 new Vue({
