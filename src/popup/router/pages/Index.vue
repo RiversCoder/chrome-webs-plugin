@@ -7,7 +7,7 @@
     </p>
     <p class="mb30">
       <span class="label">密码</span>
-      <el-input v-model.trim="passWord" size="small" placeholder="请输入密码" show-password class="input"></el-input>
+      <el-input v-model.trim="passWord" size="small" placeholder="请输入密码" @keyup.enter.native="login" show-password class="input"></el-input>
     </p>
     <p>
       <el-button type="primary" size="small" class="input ml15" @click="login">登 录</el-button>
@@ -24,8 +24,21 @@ export default {
       passWord: ""
     };
   },
-  mounted() {},
+  mounted() {
+    this.init()
+  },
   methods: {
+    init(){
+      // 获取当前登录状态
+      chrome.storage.sync.get({loginInfo: {}},(item) => {
+        if(!item) return;
+        console.log(item)
+        // 判断是否登录状态
+        if(typeof item.loginInfo.loginStatus !== "undefined" && item.loginInfo.loginStatus){
+          this.$router.push("switchPage");
+        }
+      });
+    },
     //登录账号
     login() {
       if(this.loginNumber ===''){
@@ -53,9 +66,7 @@ export default {
         .post(url, data)
         .then(res => {
            let token = res.data.data
-           console.log(token)
            this.$store.commit('changehasToken', token)
-           this.$router.push("switchPage");
            this.getUserInfo(token)
         })
         .catch(err => {
@@ -71,7 +82,15 @@ export default {
           let CODE = res.data.code
           if (CODE.search(/^R/) > -1) {
             let data = res.data.data;
-            this.$store.commit('changeuserInfo', res.data.data);
+            this.$store.commit('changeuserInfo', data);
+            // 设置当前的 登录 状态
+           let info = {
+             loginStatus: true,
+             token: token,
+             userName: data.userName,
+           }
+            chrome.storage.sync.set({loginInfo:info});
+            this.$router.push("switchPage");
           }
         })
         .catch(error => {

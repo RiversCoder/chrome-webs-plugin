@@ -4,7 +4,7 @@
       <p class="title">网源录入插件</p>
       <p class="message">
         <el-avatar size="small" :src="circleUrl" class="img"></el-avatar>
-        <span>{{userInfo.userName}}</span>
+        <span>{{userName}}</span>
         <span class="line">|</span>
         <span class="login_out" @click="loginOut">退出</span>
       </p>
@@ -32,14 +32,14 @@ export default {
       listTemplateIndexStatus: 1 // 1 代表 网源录入列表框 2 代表模板录入框
     };
   },
-  mounted(){
+  created(){
     this.init();
   },
   methods: {
     // 初始化方法
     init(){
       // 获取当前盒子的的状态
-      chrome.storage.sync.get({kedunWebPluginBoxOnoff: false, listTemplateIndexStatus: 1},(item) => {
+      chrome.storage.sync.get({kedunWebPluginBoxOnoff: false, listTemplateIndexStatus: 1,loginInfo:{}},(item) => {
         if(!item) return;
 
         // 判断是否存在初始化盒子存在的状态
@@ -58,11 +58,16 @@ export default {
         if(typeof item.listTemplateIndexStatus !== "undefined"){
           this.listTemplateIndexStatus = item.listTemplateIndexStatus;
         }
+        // 判断是否登录状态 已登录显示用户名
+        if(typeof item.loginInfo.userName !== "undefined"){
+          this.userName = item.loginInfo.userName;
+        }
+ console.log(item.loginInfo.userName)
       });
     },
     //退出登录
      loginOut () {
-      let url = `${this.loginService}user/loginout`
+      let url = `${this.loginService}auths/lginOut`
       this.axios.get(url, {
         headers: {
           system: 'S11SU01',
@@ -71,7 +76,18 @@ export default {
       }).then(response => {
         this.$store.commit('changehasToken', '')
         this.$router.push("/");
-      })
+        // 清除登录状态
+         let info = {
+             loginStatus: false,
+             token: '',
+             userName: '',
+           }
+            chrome.storage.sync.set({loginInfo:info});
+            // 把当前的状态存入 storage
+            this.buttonShow = false
+          chrome.storage.sync.set({kedunWebPluginBoxOnoff: this.buttonShow});
+          this.messageModal(this.buttonShow);
+      })  
         .catch(error => {
           this.bus.$emit('showNotice', { content: '网络错误', type: 'info' })
         });
