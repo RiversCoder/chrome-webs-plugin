@@ -176,7 +176,6 @@
 
 const $ = global.$;
 
-import { mapState } from "vuex";
 export default {
   data() {
     return {
@@ -362,7 +361,6 @@ export default {
 
   },
    computed: {
-    // ...mapState(["loginService"]),
   },
   components: {}
 };
