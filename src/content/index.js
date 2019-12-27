@@ -3,8 +3,7 @@ const $ = global.$;
 import ElementUI from 'element-ui';
 import '@/css/index.css';
 import App from './App.vue';
-import Vuex from 'vuex'
-Vue.use(Vuex)
+
 Vue.use(ElementUI);
 const content_script = ` 
     <div id="WebSubscription"></div>
