@@ -42,7 +42,6 @@ export default {
       // console.log('监听来自popup的消息')
       // 监听来自popup的消息
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-          console.log(request);
           switch(request.event){
             case 'popup-content-onoff':
               // 切换网源盒子显示

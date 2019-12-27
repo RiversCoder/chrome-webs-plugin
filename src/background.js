@@ -19,14 +19,23 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
 // 监听 tab选项卡 切换 获取当前插件开关状态
 chrome.tabs.onActivated.addListener((activeInfo) => {
     // activeInfo -> {tabId:1,windowId:2}
+    
     chrome.storage.sync.get({kedunWebPluginBoxOnoff: false, listTemplateIndexStatus: 1},(item) => {
         if(!item) return;
+
         // 判断是否存在初始化盒子存在的状态
         if(typeof item.kedunWebPluginBoxOnoff !== "undefined"){
             chrome.tabs.sendMessage(activeInfo.tabId, {event: 'popup-content-onoff', data: {onoff: item.kedunWebPluginBoxOnoff}}, function(res){
                 console.log(res)
             });
         }
+        // 判断是否存在盒子状态 列表/模板
+        if(typeof item.listTemplateIndexStatus !== "undefined"){
+            // {data:{listTemplateIndexStatus:this.listTemplateIndexStatus},event:'popup-content-status'}
+            chrome.tabs.sendMessage(activeInfo.tabId, {data:{listTemplateIndexStatus:item.listTemplateIndexStatus},event:'popup-content-status'}, function(res){
+                console.log(res)
+            });
+        }    
     });
 });
 
