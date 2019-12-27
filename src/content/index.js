@@ -16,7 +16,6 @@ const content_script = `
             z-index: 9999999 !important;
         }
     </style>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 `;
 
 $(document).ready(()=>{  
