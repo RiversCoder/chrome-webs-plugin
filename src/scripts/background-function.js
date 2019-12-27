@@ -27,7 +27,7 @@ export function checkWebsiteDynamic({href, contentSource}){
         type: 'json'，'urlencoded'
 */
 export function requestJsonData({url,method,body,headers,type}){
-
+    console.log(body)
     // 搜集配置信息
     url = url || '';
     method = method || 'get';
@@ -42,8 +42,9 @@ export function requestJsonData({url,method,body,headers,type}){
         credentials: 'same-origin',//omit 不携带 same-origin 同源请求携带 include 无论跨域还是同源请求都会携带
         mode: 'cors' //cors, no-cors, same-origin, navigate
     };
-    let config  = method.toUpperCase() === 'POST' ? Object.assign(basicConfig,{body:json.stringify(body)}) : basicConfig;
-
+   
+    let config  = method.toUpperCase() === 'POST' ? Object.assign(basicConfig,{body:JSON.stringify(body)}) : basicConfig;
+    console.log(config)
     // 调用接口
     return fetch( url, config).then(res => res.json()).then(res => {
         return res;

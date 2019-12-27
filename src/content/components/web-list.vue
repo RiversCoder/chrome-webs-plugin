@@ -3,11 +3,11 @@
     <ul style="padding: 0;">
       <li class="web-list__list">
         <span class="web-list__text">选择爬取模式</span>
-        <el-select v-model="type" placeholder="请选择" size="small" class="web-list__input">
+        <el-select v-model="crawlMode" placeholder="请选择" size="small" class="web-list__input">
           <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
+            v-for="(item,index) in options"
+            :key="index"
+            :label="item.name"
             :value="item.value"
           ></el-option>
         </el-select>
@@ -22,11 +22,11 @@
         <span class="web-list__text">
           <span class="web-list__text_red">*</span> 网站类型
         </span>
-        <el-select v-model="value" placeholder="请选择" size="small" class="web-list__input">
+        <el-select v-model="websiteType" placeholder="请选择" size="small" class="web-list__input">
           <el-option
-            v-for="item in options1"
-            :key="item.value"
-            :label="item.label"
+            v-for="(item,index) in options1"
+            :key="index"
+            :label="item.name"
             :value="item.value"
           ></el-option>
         </el-select>
@@ -36,11 +36,11 @@
           <span class="web-list__text_red">*</span> 行业类别
         </span>
         <div class="web-list__group_box web-list__input">
-          <el-checkbox-group v-model="checkboxGroup" size="small" class="web-list__group">
+          <el-checkbox-group v-model="tradesId" size="small" class="web-list__group">
             <el-checkbox
-              :label="item.label"
+              :label="item.name"
               border
-              v-for="(item,index) in labelList"
+              v-for="(item,index) in labelList1"
               :key="index"
               class="web-list__group--checkbox"
             ></el-checkbox>
@@ -51,11 +51,11 @@
         <span class="web-list__text">
           <span class="web-list__text_red">*</span> 爬取级别
         </span>
-        <el-select v-model="value" placeholder="请选择" size="small" class="web-list__input">
+        <el-select v-model="level" placeholder="请选择" size="small" class="web-list__input">
           <el-option
-            v-for="item in options2"
-            :key="item.value"
-            :label="item.label"
+            v-for="(item,index) in options2"
+            :key="index"
+            :label="item.name"
             :value="item.value"
           ></el-option>
         </el-select>
@@ -64,11 +64,11 @@
         <span class="web-list__text">
           <span class="web-list__text_red">*</span> 语言类型
         </span>
-        <el-select v-model="value" placeholder="请选择" size="small" class="web-list__input">
+        <el-select v-model="language" placeholder="请选择" size="small" class="web-list__input">
           <el-option
-            v-for="item in options3"
-            :key="item.value"
-            :label="item.label"
+            v-for="(item,index) in options3"
+            :key="index"
+            :label="item.name"
             :value="item.value"
           ></el-option>
         </el-select>
@@ -78,7 +78,7 @@
           <span class="web-list__text_red">*</span> 是否海内外
         </span>
         <div class="web-list__input" style="margin-top: 10px;">
-          <el-radio-group v-model="radio" class="web-list__input">
+          <el-radio-group v-model="oversea" class="web-list__input">
             <el-radio :label="1">是</el-radio>
             <el-radio :label="0">否</el-radio>
           </el-radio-group>
@@ -97,23 +97,23 @@
         </div>
       </li>
       <!-- 仅列表模式显示 -->
-      <li class="web-list__list" v-if="type===2">
+      <li class="web-list__list" v-if="crawlMode==='LIST'">
         <span class="web-list__text">选择列表</span>
         <el-input v-model="selectListContent.content" size="small" placeholder="请输入" class="web-list__input" @focus="grabData"></el-input>
       </li>
       <!-- 仅列表模式显示 -->
-      <li class="web-list__list" v-if="type===2">
+      <li class="web-list__list" v-if="crawlMode==='LIST'">
         <span class="web-list__text">下一页</span>
         <el-input v-model="selectNextPageContent.content" size="small" placeholder="请输入" class="web-list__input" @focus="grabDataPage"></el-input>
       </li>
       <li class="web-list__list" style="margin-bottom: 0;">
         <span class="web-list__text">自定义标签</span>
         <div class="web-list__group_box web-list__input">
-          <el-checkbox-group v-model="checkboxGroup" size="small" class="web-list__group">
+          <el-checkbox-group v-model="customTagsId" size="small" class="web-list__group">
             <el-checkbox
-              :label="item.label"
+              :label="item.name"
               border
-              v-for="(item,index) in labelList"
+              v-for="(item,index) in labelList2"
               :key="index"
               class="web-list__group--checkbox"
             ></el-checkbox>
@@ -125,28 +125,28 @@
           <span class="web-list__text_red">*</span> 所属地域
         </span>
         <div class="web-list__input" style="width: 265px;">
-          <el-select v-model="province" placeholder="请选择" size="small" style="width:83px">
+          <el-select v-model="province" placeholder="请选择" size="small" style="width:83px" @change="getCityList(province)">
             <el-option
-              v-for="item in provinceList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="(item,index) in provinceList"
+              :key="index"
+              :label="item.proviceName"
+              :value="item.proviceId"
             ></el-option>
           </el-select>
-          <el-select v-model="city" placeholder="请选择" size="small" style="width:83px">
+          <el-select v-model="city" placeholder="请选择" size="small" style="width:83px" @change="getCountysList(city)" >
             <el-option
-              v-for="item in cityList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="(item,index) in cityList"
+              :key="index"
+              :label="item.cityName"
+              :value="item.cityId"
             ></el-option>
           </el-select>
           <el-select v-model="area" placeholder="请选择" size="small" style="width:83px">
             <el-option
-              v-for="item in areaList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="(item,index) in areaList"
+              :key="index"
+              :label="item.countyName"
+              :value="item.countyId"
             ></el-option>
           </el-select>
         </div>
@@ -155,17 +155,17 @@
         <span class="web-list__text">
           <span class="web-list__text_red">*</span> 爬取深度
         </span>
-        <el-select v-model="value" placeholder="请选择" size="small" class="web-list__input">
+        <el-select v-model="maxDepth" placeholder="请选择" size="small" class="web-list__input">
           <el-option
-            v-for="item in options2"
-            :key="item.value"
-            :label="item.label"
+            v-for="(item,index) in options4"
+            :key="index"
+            :label="item.name"
             :value="item.value"
           ></el-option>
         </el-select>
       </li>
       <li class="web-list__list" style="text-align: center;">
-        <el-button type="primary" size="small" class="web-list__list--submit">提交</el-button>
+        <el-button type="primary" size="small" class="web-list__list--submit" @click="submit">提交</el-button>
       </li>
     </ul>
   </div>
@@ -173,56 +173,68 @@
 
 
 <script scoped>
-
+import { mapState } from 'vuex';
 const $ = global.$;
 
 export default {
   data() {
     return {
       options: [
-        { value: 1, label: "全局模式" },
-        { value: 2, label: "列表模式" }
+        { value: 1, name: "全局模式" },
+        { value: 2, name: "列表模式" }
       ],
       options1: [
-        { value: 1, label: "通用网站" },
-        { value: 2, label: "论坛" },
-        { value: 3, label: "纸媒" },
-        { value: 4, label: "问答" },
-        { value: 5, label: "自媒体" }
+        { value: 1, name: "通用网站" },
+        { value: 2, name: "论坛" },
+        { value: 3, name: "纸媒" },
+        { value: 4, name: "问答" },
+        { value: 5, name: "自媒体" }
       ],
       options2: [
-        { value: 1, label: "1" },
-        { value: 2, label: "2" },
-        { value: 3, label: "3" },
-        { value: 4, label: "4" },
-        { value: 5, label: "5" },
-        { value: 6, label: "6" }
+        { value: 1, name: "1" },
+        { value: 2, name: "2" },
+        { value: 3, name: "3" },
+        { value: 4, name: "4" },
+        { value: 5, name: "5" },
+        { value: 6, name: "6" }
       ],
       options3: [
-        { value: 1, label: "中文" },
-        { value: 2, label: "英文" },
-        { value: 3, label: "藏文" },
-        { value: 4, label: "维文" },
-        { value: 5, label: "日语" },
-        { value: 6, label: "法语" }
+        { value: 1, name: "中文" },
+        { value: 2, name: "英文" },
+        { value: 3, name: "藏文" },
+        { value: 4, name: "维文" },
+        { value: 5, name: "日语" },
+        { value: 6, name: "法语" }
       ],
-      labelList: [
-        { value: 1, label: "公安类" },
-        { value: 2, label: "房产类" },
-        { value: 3, label: "金融类" },
-        { value: 4, label: "能源类" }
+      options4:[],
+      nameList: [
+        { value: 1, name: "公安类" },
+        { value: 2, name: "房产类" },
+        { value: 3, name: "金融类" },
+        { value: 4, name: "能源类" }
       ],
-      provinceList: [{ value: 1, label: "省" }],
-      cityList: [{ value: 1, label: "市" }],
-      areaList: [{ value: 1, label: "区" }],
+      labelList:[],//行业类别
+      labelList1:[],//行业类别
+      labelList2:[],//自定义标签
+      provinceList: [{ value: 1, name: "省" }],
+      cityList: [{ value: 1, name: "市" }],
+      areaList: [{ value: 1, name: "区" }],
       province: "",
       city: "",
       area: "",
       value: 1,
-      type: 2, //爬取模式
+      websiteType:'',//网源类型 网站类型
+      level:'',//网源优先级 爬取级别
+      crawlMode:'LIST',//爬取模式
+      language:'',//语言类型
+      sourceTags:'',//来源标签
+      oversea:0,//是否境外
+      customTagsId:[], //自定义标签id集合
+      tradesId:[], //行业标签id集合
+      maxDepth:'',//爬取深度
       radio: 1,
-      staticDynamic: 1, // 是否为动态网站 1 动态网站 0 静态网站
-      webName: "",
+      staticDynamic: 0, // 是否为动态网站 1 动态网站 0 静态网站
+      webName: "", //网源名称
       selectListContent: { // 选择列表内容
         content: '',  // 展示内容
         value: ''  // 像后台传递的内容
@@ -231,24 +243,220 @@ export default {
         content: '',
         value: ''
       },
-      checkboxGroup: []
+      checkboxGroup: [],
+      token:''
     };
   },
-  created() {},
   mounted() {
     // this.initEvent();
     // console.log(this.loginService)
+    chrome.storage.sync.get('loginInfo',(item) => {
+        if(!item) return;
+        this.token = item.loginInfo.token
+      });
+        setTimeout(()=>{
+        this.getList() //获取各个选项数据
+        },1000)
+    
   },
   methods: {
-    getlist(){
-      let url = ''
-      axios.get(url)
-      .then( res => {
-        console.log(res)
-      }).catch( err => {
-        console.log(err)
-      })
+    getList(){
+      // 0、爬取模式 1、语言类别 2、状态类别 3、网站类型 4、爬取级别 5、爬取深度
+      this.getTemplateList(0,'爬取模式') //获取爬取模式列表
+      this.getTemplateList(3,'网站类型') //获取网站类型列表
+      this.getTemplateList(4,'爬取级别') //获取爬取级别列表
+      this.getTemplateList(1,'语言类别') //获取语言类别列表
+      this.getTemplateList(5,'爬取深度') //获取爬取深度列表
+      this.getTradeType()//获行业列表
+      this.getCustomList()//获取自定义标签列表
+      this.getProvinceList(); //获取省级
     },
+    //获取爬取模式列表
+    getTemplateList(type,name){
+
+        let domain = global.location.host;
+        let url = `${this.netService}options/${type}`;
+        let headers = { system: 'S11SU01', token: this.token };
+        
+        // 获取选项列表
+        chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:`请求：获取${name}选项列表`}, (response) => {
+          console.log(`请求：获取${name}选项列表`,response)
+          if(response.code == 0){
+            if(type===0){ //爬取模式列表
+              this.options = response.data
+            }else if(type===3){ //网站类型列表
+              this.options1 = response.data
+            }else if(type===4){ //爬取级别列表
+              this.options2 = response.data
+            }else if(type===1){ //爬取语言类别列表
+              this.options3 = response.data
+            }else if(type===5){ //爬取爬取深度列表
+              this.options4 = response.data
+            }
+            
+          }else{
+            this.$message({ type:'error', message: response.msg, showClose: true});
+          }
+        });
+
+      },
+    //获行业列表
+    getTradeType(){
+        let domain = global.location.host;
+        let url = `${this.netService}tag/tradeType/list/NORMAL`;
+        let headers = { system: 'S11SU01', token: this.token };
+        chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:`请求：获取行业列表`}, (response) => {
+          console.log('获取行业列表',response)
+          if(response.code == 0){
+            this.labelList1 = response.data
+          }else{
+            this.$message({ type:'error', message: response.msg, showClose: true});
+          }
+        });
+
+      },
+    //获取自定义标签列表
+    getCustomList(){
+        let domain = global.location.host;
+        let url = `${this.synthesisApi}api/tag/custom/list/valid`;
+        let headers = { system: 'S11SU01', token: this.token };
+        chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:`请求：获取自定义标签列表`}, (response) => {
+          console.log('获取自定义标签列表',response)
+           let code = response.code
+          if(code.charAt(0) == "R"){
+            this.labelList2 = response.data
+          }else{
+            this.$message({ type:'error', message: response.msg, showClose: true});
+          }
+        });
+
+      },
+    //获取自定义标签列表provinceList: [{ value: 1, name: "省" }],
+      // cityList: [{ value: 1, name: "市" }],
+      // areaList: [{ value: 1, name: "区" }],
+    getProvinceList(){
+        let domain = global.location.host;
+        let url = `${this.monitorApi}positionApi/provice`;
+        let headers = { system: 'S11SU01', token: this.token };
+        chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:`请求：获取省级列表`}, (response) => {
+          console.log('请求：获取省级列表',response)
+           let code = response.code
+          if(code.charAt(0) == "R"){
+            console.log('请求：获取省级列表',response)
+            this.provinceList = response.data
+          }else{
+            this.$message({ type:'error', message: response.msg, showClose: true});
+          }
+        });
+
+      },
+      //请求市级列表
+    getCityList(proviceId){
+        let domain = global.location.host;
+        let url = `${this.monitorApi}positionApi/citys/${proviceId}`;
+        let headers = { system: 'S11SU01', token: this.token };
+        chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:`请求：获取市级列表`}, (response) => {
+          console.log('请求：获取市级列表',response)
+           let code = response.code
+          if(code.charAt(0) == "R"){
+            this.cityList = response.data
+          }else{
+            this.$message({ type:'error', message: response.msg, showClose: true});
+          }
+        });
+      },
+      //请求区级列表
+    getCountysList(cityId){
+        let domain = global.location.host;
+        let url = `${this.monitorApi}positionApi/countys/${cityId}`;
+        let headers = { system: 'S11SU01', token: this.token };
+        chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:`请求：获取区级列表`}, (response) => {
+          console.log('请求：获取区级列表',response)
+           let code = response.code
+          if(code.charAt(0) == "R"){
+            this.areaList = response.data
+          }else{
+            this.$message({ type:'error', message: response.msg, showClose: true});
+          }
+        });
+      },
+      //用于网源录入插件请求新增网源
+      submit(){
+        let region = []
+        let tradesId = []
+        let customTagsId = []
+        region.push(this.province)
+        region.push(this.city)
+        region.push(this.area)
+        this.labelList1.forEach(res=>{
+          this.tradesId.forEach(item=>{
+          if(res.name ==item){
+            tradesId.push(res.id)
+          }
+        })
+        })
+        this.labelList2.forEach(res=>{
+          this.customTagsId.forEach(item=>{
+          if(res.name ==item){
+            tradesId.push(res.id)
+          }
+        })
+        })
+        
+       let param =  {
+            "name": this.webName,
+            "region": region,
+            "provinceId": this.province,
+            "countyId": this.area,
+            "cityId": this.city,
+            "websiteType": this.websiteType,
+            "level": this.level,
+            "crawlMode": this.crawlMode,
+            "language": this.language,
+            "tradesId": tradesId,
+            "customTagsId": customTagsId,
+            "listPaths": [this.selectListContent.value],
+            // "sysUserId": 19999,
+            "pagePath": this.selectNextPageContent.value,
+            "oversea": this.oversea==1?true:false,
+            "dynamic": this.staticDynamic==1?true:false,
+            "domain": global.location.host,
+            "homepage": global.location.href,
+            "maxDepth": this.maxDepth
+        }
+        let domain = global.location.host;
+        let url = `${this.netService}web-module`;
+        let headers = { system: 'S11SU01', token: this.token };
+
+        console.log('网源录入插件请求新增网源',{ url, headers, method:'post', body:param })
+        chrome.runtime.sendMessage({ data:{ url, headers, method:'post', body:param }, event:'requestJsonData', eventName:`请求：网源录入插件请求新增网源`}, (response) => {
+          
+          console.log('网源录入插件请求新增网源',response)
+           if(response.code == 0){
+            this.initData() // 新增成功初始化数据
+             this.$message({ type:'success', message: `操作成功！`, showClose: true, duration: 2000 });
+          }else{
+            this.$message({ type:'error', message: response.msg, showClose: true});
+          }
+        });
+      },
+      // 初始化数据
+      initData(){
+      this.websiteType = '';//网源类型 网站类型
+      this.level= '';//网源优先级 爬取级别
+      this.crawlMode ='LIST';//爬取模式
+      this.language= ''; //语言类型
+      this.sourceTags= '';//来源标签
+      this.oversea = 0;//是否境外
+      this.customTagsId = []; //自定义标签id集合
+      this.tradesId = []; //行业标签id集合
+      this.maxDepth= '';//爬取深度
+      this.staticDynamic =  0; // 是否为动态网站 1 动态网站 0 静态网站
+      this.webName =  ""; // 网源名称
+      this.province =  ""; // 省
+      this.city =  ""; // 市
+      this.area =  ""; // 区
+      },
     initEvent(){
       // console.log('监听来自popup的消息')
       // 监听来自popup的消息
@@ -360,7 +568,8 @@ export default {
     }
 
   },
-   computed: {
+  computed:{
+      ...mapState(['loginService','userInfo','netService','monitorApi','synthesisApi'])
   },
   components: {}
 };
