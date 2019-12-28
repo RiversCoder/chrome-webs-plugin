@@ -66,7 +66,7 @@
         <el-button type="primary" plain size="small" class="web-list__list--submit" @click="interactiveElement('preview')">预览该项</el-button>
       </li>
       <li class="web-list__list" style="text-align: center;">
-        <el-button type="primary" size="small" class="web-list__list--submit">提交</el-button>
+        <el-button type="primary" size="small" class="web-list__list--submit" @click="submitTemplateForm">提交</el-button>
       </li>
     </ul>
 
@@ -87,7 +87,7 @@
 
 <script scoped>
   import { mapState } from 'vuex';
-  import { goInset, goOutset, goPrev, goNext, goReset, goPreview } from '../scripts/data';
+  import { goInset, goOutset, goPrev, goNext, goReset, goPreview, readXPath, getElemByXpath } from '../scripts/data';
 
   export default {
     data() {
@@ -121,6 +121,7 @@
           createdAt: { xpath: '', content: '' }, // 模板标题
           content: { xpath: '', content: '' } // 模板标题
         },
+        templateContentKeys: ['title','author','createdAt','content'],
         // 当前 元素盒子 及 状态数据存储
         current: {
            bodyStyleElem: null, // body盒子内容
@@ -133,6 +134,10 @@
           title: '预览内容',
           content: ''
         },
+        // 用户相关信息
+        userInfos:{
+          token: ''
+        },
         // 挡圈
         options: [],
         type: "",  //
@@ -140,6 +145,12 @@
       };
     },
     created() {
+
+      chrome.storage.sync.get('loginInfo',(item) => {
+        if(!item) return;
+        // this.userInfo.token = item.loginInfo.token
+      });
+
       // 1. 获取网源列表
       this.initRequest();
     },
@@ -199,6 +210,7 @@
               this.templateList.options.push({ label: v.name, value: v.id });
               // 获取当前模板对应的xpath信息
               this.templateList.elementsInfo.push({
+                name: v.name,
                 id: v.id,
                 websiteAttrId: v.websiteAttrId,
                 checkNumber: 0,
@@ -251,24 +263,62 @@
         if( this.templateList.elementsInfo.length === 0 || this.templateList.elementsInfo[0].checkNumber <= 0){
           // 全部不匹配 选择新增模板
           this.templateList.value = "add-template-content";
+          // 清空所有页面上的 红色边框焦点
+          this.clearTemplateRedActiveBox();
         }else{
           // 若有匹配 选择第一个
           this.templateList.value = this.templateList.elementsInfo[0].id;
+          // 选择当前模板之后 在页面里面选中当前模板的内容
+          this.autoActiveCurrentTemplateForm(this.templateList.elementsInfo[0]);
         }
+
+      },
+      // 页面值初始化 红色框框选中 表单内容自动填充
+      autoActiveCurrentTemplateForm(content){
+        const xpath_keys = ['titleXpath','authorXpath','createdXpath','contentXpath'];
+        //let content = {"titleXpath":"//*[@id=\"3\"]/h3[1]/a[1]","authorXpath":"//*[@id=\"3\"]/div[1]","createdAtXpath":"//*[@id=\"3\"]/div[2]","contentXpath":"//*[@id=\"4\"]","websiteAttrId":"","sysUserId":100434,"websiteModulesId":["5e0336382cc3501392cb5684"],"status":"VAILD","name":"sxdasxasxa"};
+        
+        // 回显 模板内容表单
+        this.templateFormData.name = content.name;
+        this.templateContentKeys.forEach(key => {
+          let ele = getElemByXpath(content[key+'Xpath']);
+          if(ele){
+            $(ele).addClass('ws-grab-class-'+key);
+            this.templateFormData[key].content = ele.innerHTML;
+            this.templateFormData[key].xpath = content[key+'Xpath'];
+          }
+        })
+
+      },
+      // 清理页面所有红色框框 和 表单内容
+      clearTemplateRedActiveBox(){
+        
+        this.templateContentKeys.forEach(key => {
+          $('*').removeClass('ws-grab-class');
+          $('*').removeClass('ws-grab-class-'+key);
+        });
+
+         // 清空表单
+        this.templateFormData.name = '';
+        this.templateContentKeys.forEach(key => {
+          this.templateFormData[key].content = '';
+          this.templateFormData[key].xpath = '';
+        })
 
       },
       // 选择模板内容
       getChangeTemplate(){
         // 如果选择 新增模板 然后进行选择
         if(this.templateList.value == 'add-template-content'){
-
+          // 清空所有页面上的 红色边框焦点
+          this.clearTemplateRedActiveBox();
         }
       },
       activeHoverClick(attr){
         // 开始获取当前页面里面的内容
         this.bindEvent(attr,(ele) => {
           this.templateFormData[attr].content = $(ele).text().replace(/\s*/ig,'').substring(0,100);
-          this.templateFormData[attr].xpath = '';
+          this.templateFormData[attr].xpath = readXPath(ele);
         });
       },
       bindEvent(type,fn){
@@ -349,8 +399,73 @@
             goPreview(this.current.currentClickElem, this.current.currentType, this)
             break;
         }
-      }
+      },
+      // 提交模板表单
+      submitTemplateForm(){
+        /*
+           {
+              "sysUserId": "5b1a184f4cedfd20bc6f8bfa",
+              "titleXpath": "/html[1]/body[1]/div[1]/div[1]/div[3]/div[1]/div[2]/div[1]/h1[1]",
+              "authorXpath": "",
+              "createdAtXpath": "/html[1]/body[1]/div[1]/div[1]/div[3]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]",
+              "contentXpath": "/html[1]/body[1]/div[1]/div[1]/div[3]/div[1]/div[2]/div[1]/div[3]",
+              "websiteAttrId": "5c986e802d98403f00561fa8",
+              "websiteModulesId": [
+                  "5b2a0bb052faff000197ac42"
+              ],
+              "dynamic": false,
+              "name": "国际经济",
+              "status": "NORMAL",
+              "createdAt": 1529482231596
+            }
+        */
 
+        // 判断 绑定网源 web-module/web-template
+        if(this.templateList.value !== 'add-template-content'){
+           let url1 = `${this.netService}web-module/web-template`;
+           let body1 = { "webTemplateId": this.templateList.value, "webModuleId": this.webSource.value };
+           
+           // 请求 绑定网站
+           chrome.runtime.sendMessage({ data:{ method:'post', body: body1, url: url1, headers }, event:'requestJsonData', eventName:'绑定网源'}, (response) => {
+             if(response.code == 0){
+               this.$message({type:'success',message:'绑定网源成功',showClose:true});
+             }
+             console.log(response);
+           });
+
+            return;
+        }
+         
+
+        // 1. 获取内容的xpath字段
+        const xpathKeys = ['title','author','createdAt','content'];
+        // 2. 基础的其他参数
+        let basicConfig = {
+          websiteAttrId:"", sysUserId: this.userInfo.userInfo.userId, websiteModulesId: [this.webSource.value], status: "VAILD", name: this.templateFormData.name
+        };
+        // 3. 获取xpqathConfig
+        let basicXpathConfig = (() => {
+          let config = {};
+          xpathKeys.forEach(key => {
+            config[key+'Xpath'] = this.templateFormData[key].xpath;
+          })
+          return config;
+        })();
+        // 4. 获得最终的 config 配置信息
+        let resultConfig = Object.assign({},basicXpathConfig,basicConfig);
+        
+        // 5. 请求接口内容
+        let url = `${this.netService}web-template`;
+        let headers = { system: 'S11SU01', token: this.userInfo.token };
+
+        // 获取网源模板列表
+        chrome.runtime.sendMessage({ data:{ method:'post', body: resultConfig, url, headers }, event:'requestJsonData', eventName:'新增网源模板'}, (response) => {
+          if(response.code == 0){
+            this.$message({type:'success',message:'新增模板并绑定成功',showClose:true});
+          }
+        })
+        
+      }
     },
     components: {},
     computed:{

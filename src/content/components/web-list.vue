@@ -257,7 +257,6 @@ export default {
         setTimeout(()=>{
         this.getList() //获取各个选项数据
         },1000)
-    
   },
   methods: {
     getList(){
