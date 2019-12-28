@@ -69,6 +69,18 @@
         <el-button type="primary" size="small" class="web-list__list--submit">提交</el-button>
       </li>
     </ul>
+
+    <!-- 内容弹出框 -->
+    <el-dialog
+    :title="dialog.title"
+    :visible.sync="dialog.visible"
+    width="60%">
+      <span v-html="dialog.content ? dialog.content : '请选择内容'"></span>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialog.visible = false">确 定</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -114,6 +126,12 @@
            bodyStyleElem: null, // body盒子内容
            currentClickElem: null, // 当前选中的内容
            currentType: '' // 当前选中的类型
+        },
+        // 预览弹窗内容 相关信息
+        dialog:{
+          visible: false,
+          title: '预览内容',
+          content: ''
         },
         // 挡圈
         options: [],
@@ -315,15 +333,20 @@
           case 'inset': /* 向内扩散 */
             goInset(this.current.currentClickElem, this.current.currentType, this); 
             break;
-          case 'outset':
+          case 'outset': /* 向外扩散 */
+            goOutset(this.current.currentClickElem, this.current.currentType, this);
             break;
-          case 'prev':
+          case 'prev': /* 上一个元素 */
+            goPrev(this.current.currentClickElem, this.current.currentType, this);
             break;
-          case 'next':
+          case 'next':  /* 下一个元素 */
+            goNext(this.current.currentClickElem, this.current.currentType, this);
             break;
-          case 'reset':
+          case 'reset':  /* 重置该项选择内容 */
+            goReset(this.current.currentClickElem, this.current.currentType, this);
             break;
-          case 'preview':
+          case 'preview': /* 预览 该表单项所看到的内容 */
+            goPreview(this.current.currentClickElem, this.current.currentType, this)
             break;
         }
       }
