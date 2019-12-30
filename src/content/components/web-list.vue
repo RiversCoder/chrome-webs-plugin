@@ -3,7 +3,7 @@
     <ul style="padding: 0;">
       <li class="web-list__list">
         <span class="web-list__text">选择爬取模式</span>
-        <el-select v-model="crawlMode" placeholder="请选择" size="small" class="web-list__input">
+        <el-select v-model="crawlMode" placeholder="请选择" size="small" class="web-list__input" @change="initData">
           <el-option
             v-for="(item,index) in options"
             :key="index"
@@ -244,7 +244,8 @@ export default {
         value: ''
       },
       checkboxGroup: [],
-      token:''
+      token:'',
+      userId:''//用户userId
     };
   },
   mounted() {
@@ -253,6 +254,9 @@ export default {
     chrome.storage.sync.get('loginInfo',(item) => {
         if(!item) return;
         this.token = item.loginInfo.token
+        this.userId = item.loginInfo.userId
+        console.log(item.loginInfo)
+
       });
         setTimeout(()=>{
         this.getList() //获取各个选项数据
@@ -317,7 +321,7 @@ export default {
     //获取自定义标签列表
     getCustomList(){
         let domain = global.location.host;
-        let url = `${this.synthesisApi}api/tag/custom/list/valid`;
+        let url = `${this.userModule}tag/custom/list/valid`;
         let headers = { system: 'S11SU01', token: this.token };
         chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:`请求：获取自定义标签列表`}, (response) => {
           console.log('获取自定义标签列表',response)
@@ -330,12 +334,10 @@ export default {
         });
 
       },
-    //获取自定义标签列表provinceList: [{ value: 1, name: "省" }],
-      // cityList: [{ value: 1, name: "市" }],
-      // areaList: [{ value: 1, name: "区" }],
+    //获取省
     getProvinceList(){
         let domain = global.location.host;
-        let url = `${this.monitorApi}positionApi/provice`;
+        let url = `${this.userModule}dept/GB/0/0?regionalFlag=0`;
         let headers = { system: 'S11SU01', token: this.token };
         chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:`请求：获取省级列表`}, (response) => {
           console.log('请求：获取省级列表',response)
@@ -352,7 +354,7 @@ export default {
       //请求市级列表
     getCityList(proviceId){
         let domain = global.location.host;
-        let url = `${this.monitorApi}positionApi/citys/${proviceId}`;
+        let url = `${this.userModule}dept/GB/1/${proviceId}?regionalFlag=0`;
         let headers = { system: 'S11SU01', token: this.token };
         chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:`请求：获取市级列表`}, (response) => {
           console.log('请求：获取市级列表',response)
@@ -367,7 +369,7 @@ export default {
       //请求区级列表
     getCountysList(cityId){
         let domain = global.location.host;
-        let url = `${this.monitorApi}positionApi/countys/${cityId}`;
+        let url = `${this.userModule}dept/GB/2/${cityId}?regionalFlag=0`;
         let headers = { system: 'S11SU01', token: this.token };
         chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:`请求：获取区级列表`}, (response) => {
           console.log('请求：获取区级列表',response)
@@ -384,9 +386,16 @@ export default {
         let region = []
         let tradesId = []
         let customTagsId = []
-        region.push(this.province)
-        region.push(this.city)
-        region.push(this.area)
+        let listPaths = []
+        if(this.province){
+          region.push(this.province)
+          if(this.city){
+          region.push(this.city)
+            if(this.area){
+            region.push(this.area)
+            }
+          }
+        }
         this.labelList1.forEach(res=>{
           this.tradesId.forEach(item=>{
           if(res.name ==item){
@@ -401,8 +410,11 @@ export default {
           }
         })
         })
-        
+        if(this.selectListContent.value){
+          listPaths.push(this.selectListContent.value)
+        }
        let param =  {
+            "status": 'VAILD',
             "name": this.webName,
             "region": region,
             "provinceId": this.province,
@@ -414,8 +426,8 @@ export default {
             "language": this.language,
             "tradesId": tradesId,
             "customTagsId": customTagsId,
-            "listPaths": [this.selectListContent.value],
-            // "sysUserId": 19999,
+            "listPaths": listPaths,
+            "sysUserId": this.userId,
             "pagePath": this.selectNextPageContent.value,
             "oversea": this.oversea==1?true:false,
             "dynamic": this.staticDynamic==1?true:false,
@@ -435,7 +447,7 @@ export default {
             this.initData() // 新增成功初始化数据
              this.$message({ type:'success', message: `操作成功！`, showClose: true, duration: 2000 });
           }else{
-            this.$message({ type:'error', message: response.msg, showClose: true});
+            this.$message({ type:'error', message: response.message || response.msg, showClose: true});
           }
         });
       },
@@ -455,6 +467,10 @@ export default {
       this.province =  ""; // 省
       this.city =  ""; // 市
       this.area =  ""; // 区
+      this.selectNextPageContent.content = '' // 选择上一页 下一页 内容
+      this.selectNextPageContent.value = ''
+      this.selectListContent.content = '' // 选择列表
+      this.selectListContent.value = ''
       },
     initEvent(){
       // console.log('监听来自popup的消息')
@@ -568,7 +584,7 @@ export default {
 
   },
   computed:{
-      ...mapState(['loginService','userInfo','netService','monitorApi','synthesisApi'])
+      ...mapState(['loginService','userInfo','netService','userModule'])
   },
   components: {}
 };
