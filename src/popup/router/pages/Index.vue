@@ -64,9 +64,15 @@ export default {
       this.axios
         .post(url, data)
         .then(res => {
-           let token = res.data.data
-           this.$store.commit('changehasToken', token)
-           this.getUserInfo(token)
+           let CODE = res.data.code
+          if (CODE.search(/^R/) > -1) {
+            let token = res.data.data
+            this.$store.commit('changehasToken', token)
+            this.getUserInfo(token)
+          }else{
+            this.$message({ type:'error', message: res.data.msg, showClose: true});
+          }
+          
         })
         .catch(err => {
           console.log(err);
