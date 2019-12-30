@@ -138,6 +138,7 @@
         userInfos:{
           token: ''
         },
+        userInfo: {},
         // 挡圈
         options: [],
         type: "",  //
@@ -151,8 +152,7 @@
         // this.userInfo.token = item.loginInfo.token
       });
 
-      // 1. 获取网源列表
-      this.initRequest();
+      
     },
     mounted() {
       this.initEvent();
@@ -164,13 +164,30 @@
         this.bodyStyleElem = document.createElement('style');
         this.bodyStyleElem.setAttribute('type','text/css');
         document.body.append(this.bodyStyleElem);
+
+        // 获取token
+        chrome.storage.sync.get('loginInfo',(item) => {
+            if(!item) return;
+            console.log(item);
+            this.token = item.loginInfo.token
+            this.userId = item.loginInfo.userId
+            this.userInfo = item.loginInfo.userInfo
+            this.userInfo.token = item.loginInfo.token;
+            // console.log(item.loginInfo, this.userInfo)
+            
+            // 1. 获取网源列表
+            this.initRequest();
+        });
+
       },
       // 初始化请求 获取网源列表
       initRequest(){
-
+        
         let domain = global.location.host;
         let url = `${this.netService}web-module/domain?domain=${domain}`;
         let headers = { system: 'S11SU01', token: this.userInfo.token };
+        console.log(headers)
+        debugger
         
         // 获取网源列表
         chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:'请求：获取网源列表'}, (response) => {
@@ -486,6 +503,7 @@
         if(this.templateList.value !== 'add-template-content'){
            let url1 = `${this.netService}web-module/web-template`;
            let body1 = { "webTemplateId": this.templateList.value, "webModuleId": this.webSource.value };
+           let headers = { system: 'S11SU01', token: this.userInfo.token };
            
            // 请求 绑定网站
            chrome.runtime.sendMessage({ data:{ method:'post', body: body1, url: url1, headers }, event:'requestJsonData', eventName:'绑定网源'}, (response) => {
@@ -530,7 +548,7 @@
     },
     components: {},
     computed:{
-      ...mapState(['loginService','userInfo','netService'])
+      ...mapState(['loginService','netService'])
     }
   };
 </script>

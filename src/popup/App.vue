@@ -50,7 +50,7 @@ export default {
           token: loginInfo.token
         }
       }).then(response => {
-        console.log(response);
+        // console.log(response);
         if(response.data.code.substr(0,1).toUpperCase() === 'R'){
           this.$router.push('/switchPage');
         }else{

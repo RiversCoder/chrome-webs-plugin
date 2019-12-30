@@ -256,11 +256,11 @@ export default {
         this.token = item.loginInfo.token
         this.userId = item.loginInfo.userId
         console.log(item.loginInfo)
-
-      });
-        setTimeout(()=>{
-        this.getList() //获取各个选项数据
-        },1000)
+        this.getList();
+    });
+      setTimeout(()=>{
+        // this.getList() //获取各个选项数据
+      },1000)
   },
   methods: {
     getList(){
@@ -453,24 +453,24 @@ export default {
       },
       // 初始化数据
       initData(){
-      this.websiteType = '';//网源类型 网站类型
-      this.level= '';//网源优先级 爬取级别
-      this.crawlMode ='LIST';//爬取模式
-      this.language= ''; //语言类型
-      this.sourceTags= '';//来源标签
-      this.oversea = 0;//是否境外
-      this.customTagsId = []; //自定义标签id集合
-      this.tradesId = []; //行业标签id集合
-      this.maxDepth= '';//爬取深度
-      this.staticDynamic =  0; // 是否为动态网站 1 动态网站 0 静态网站
-      this.webName =  ""; // 网源名称
-      this.province =  ""; // 省
-      this.city =  ""; // 市
-      this.area =  ""; // 区
-      this.selectNextPageContent.content = '' // 选择上一页 下一页 内容
-      this.selectNextPageContent.value = ''
-      this.selectListContent.content = '' // 选择列表
-      this.selectListContent.value = ''
+        this.websiteType = '';//网源类型 网站类型
+        this.level= '';//网源优先级 爬取级别
+        // this.crawlMode ='';//爬取模式
+        this.language= ''; //语言类型
+        this.sourceTags= '';//来源标签
+        this.oversea = 0;//是否境外
+        this.customTagsId = []; //自定义标签id集合
+        this.tradesId = []; //行业标签id集合
+        this.maxDepth= '';//爬取深度
+        this.staticDynamic =  0; // 是否为动态网站 1 动态网站 0 静态网站
+        this.webName =  ""; // 网源名称
+        this.province =  ""; // 省
+        this.city =  ""; // 市
+        this.area =  ""; // 区
+        this.selectNextPageContent.content = '' // 选择上一页 下一页 内容
+        this.selectNextPageContent.value = ''
+        this.selectListContent.content = '' // 选择列表
+        this.selectListContent.value = ''
       },
     initEvent(){
       // console.log('监听来自popup的消息')

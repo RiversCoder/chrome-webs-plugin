@@ -95,7 +95,8 @@ export default {
               userName: data.userName,
               userInfo: data,
               userId: data.userId,
-            }
+            };
+            
             this.$store.commit('changeuserInfo', info);
             chrome.storage.sync.set({loginInfo:info});
             this.$router.push("switchPage");
