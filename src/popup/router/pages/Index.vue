@@ -87,6 +87,7 @@ export default {
               loginStatus: true,
               token: token,
               userName: data.userName,
+              userId: data.userId,
             }
             this.$store.commit('changeuserInfo', info);
             chrome.storage.sync.set({loginInfo:info});
