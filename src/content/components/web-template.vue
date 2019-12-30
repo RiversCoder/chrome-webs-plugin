@@ -280,8 +280,11 @@
         
         // 回显 模板内容表单
         this.templateFormData.name = content.name;
+        let ele = '';
         this.templateContentKeys.forEach(key => {
-          let ele = getElemByXpath(content[key+'Xpath']);
+          try{
+            ele = getElemByXpath(content[key+'Xpath']);
+          }catch(e){ /* console.log(e); */ }
           if(ele){
             $(ele).addClass('ws-grab-class-'+key);
             this.templateFormData[key].content = ele.innerHTML;
@@ -289,6 +292,16 @@
           }
         })
 
+      },
+      // 匹配当前的元素内容 红色框框选中, 并把这些内容存放在表单框中 
+      matchPageElementsBy(){
+        
+        // 1. 清空信息
+        this.clearTemplateRedActiveBox()
+
+        // 2. 获取当前的xpath信息
+        let currentContent = this.templateList.elementsInfo.filter((v,index,arr) => (v.id == this.templateList.value))[0];
+        this.autoActiveCurrentTemplateForm(currentContent);
       },
       // 清理页面所有红色框框 和 表单内容
       clearTemplateRedActiveBox(){
@@ -312,8 +325,12 @@
         if(this.templateList.value == 'add-template-content'){
           // 清空所有页面上的 红色边框焦点
           this.clearTemplateRedActiveBox();
+        }else{
+          // 匹配当前的元素内容 并把这些内容存放在表单框中
+          this.matchPageElementsBy();
         }
       },
+      // 激活按钮
       activeHoverClick(attr){
         // 开始获取当前页面里面的内容
         this.bindEvent(attr,(ele) => {
@@ -400,6 +417,45 @@
             break;
         }
       },
+      // 验证 表单 必填项
+      checkFormContent(){
+        // 验证
+        /*
+          templateFormData: {
+            name: '', // 模板名称,
+            title: { xpath: '', content: '' }, // 模板标题
+            author: { xpath: '', content: '' }, // 模板标题
+            createdAt: { xpath: '', content: '' }, // 模板标题
+            content: { xpath: '', content: '' } // 模板标题
+          },
+        */
+        let result = { message: '', value: true, showClose: true, type: 'error' };
+        let keys = ['title','author','createdAt','content'];
+
+        // 检测网源 是否存在
+        if(result.value && this.webSource.value.replace(/\s*/g,'') === ''){
+          result.value = false;
+          result.message = '请选择或添加网源';
+        }
+
+
+        // 检测 模板名称不能为空
+        if(result.value && this.templateFormData.name.replace(/\s*/g,'') === ''){
+          result.value = false;
+          result.message = '模板名称不能为空';
+        }
+
+        // 检测 xpath是否为空
+        for(let i=0;i<keys.length;i++){
+          if(this.templateFormData[keys[i]].xpath == '' && result.value){
+            result.value = false;
+            result.message = '表单内容不能为空';
+            break;
+          }
+        }
+
+        return result;
+      },
       // 提交模板表单
       submitTemplateForm(){
         /*
@@ -420,6 +476,12 @@
             }
         */
 
+        // 验证 表单内容
+        if(!this.checkFormContent().value){
+          this.$message(this.checkFormContent());
+          return;
+        }
+
         // 判断 绑定网源 web-module/web-template
         if(this.templateList.value !== 'add-template-content'){
            let url1 = `${this.netService}web-module/web-template`;
@@ -435,7 +497,6 @@
 
             return;
         }
-         
 
         // 1. 获取内容的xpath字段
         const xpathKeys = ['title','author','createdAt','content'];

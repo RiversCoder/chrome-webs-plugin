@@ -579,7 +579,7 @@ export default {
   width: 100%;
   height: auto;
   position: relative;
-  padding: 20px 0;
+  padding: 60px 0 20px;
 }
 .web-list .web-list__text {
   width: 108px;

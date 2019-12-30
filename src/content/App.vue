@@ -7,6 +7,9 @@
       <!-- 网站模板 -->
       <webTemplate v-show="status == 2"></webTemplate>
     </section>
+
+    <span class="kedun_web_plugin_dragBox el-icon-position" id="kedun_web_plugin_dragBox" ></span>
+
   </div>
 </template>
 
@@ -33,6 +36,10 @@ export default {
 
     // 初始化验证token
     this.initCheckToken();
+
+    // 初始化拖拽
+    this.initDrag();
+
   },
   methods:{
     // 初始化方法 本地存储的一些状态都可以放在 init 方法里面
@@ -111,6 +118,35 @@ export default {
         }
       });
 
+    },
+    // 初始化拖拽
+    initDrag(){
+      $('#kedun_web_plugin_dragBox').on('mousedown',function(e){
+            let startX = e.clientX;
+            let startY = e.clientY;
+
+            let currentLeft = parseInt($('#kedun_web_plugin').css('left'));
+            let currentTop = parseInt($('#kedun_web_plugin').css('top'));
+
+            $(document).on('mousemove',function(e){
+                let disX = e.clientX - startX;
+                let disY = e.clientY - startY;
+
+                $('#kedun_web_plugin').css({
+                  left: currentLeft + disX,
+                  top: currentTop + disY
+                });
+            });
+
+            $(document).on('mouseup',function(e){
+                $(this).off();
+                e.stopPropagation();
+            });
+
+            e.stopPropagation();
+            e.preventDefault();
+            return false;
+        });
     }
   },
   computed:{
@@ -148,6 +184,9 @@ export default {
   box-shadow: inset 0 0 5px #DDD !important;
   border-radius: 10px !important;
   background: #fff !important;
+}
+#kedun_web_plugin .kedun_web_plugin_dragBox{
+  width:38px;height:38px;position:absolute;right:10px;top:10px;background-color:#66b1ff;cursor: move;font-size:20px;color:#fff;text-align:center;line-height:38px;
 }
 </style>
 

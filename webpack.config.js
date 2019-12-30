@@ -29,7 +29,7 @@ const config = {
         options:{
           loaders: {
             'css': [
-              'vue-style-loader', 
+              'vue-style-loader',
               'css-loader',
              ]
           }
