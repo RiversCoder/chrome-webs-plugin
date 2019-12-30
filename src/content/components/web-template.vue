@@ -3,7 +3,7 @@
     <ul style="padding: 0;">
       <li class="web-list__list">
         <span class="web-list__text">选择网源</span>
-        <el-select v-model="webSource.value" placeholder="请选择" size="small" class="web-list__input">
+        <el-select v-model="webSource.value" placeholder="请选择" size="small" class="web-list__input" @change="getChangeWebsite">
           <el-option
             v-for="item in webSource.options"
             :key="item.value"
@@ -94,12 +94,13 @@
       return {
         // 网源列表
         webSource: {
-          options: [/*{value:'',label:''}*/],
-          value: ''
+          options: [/*{value:'',label:'', templateIds: [] // 当前网源所有模板ID}*/],
+          value: '',
         },
         // 模板列表
         templateList: {
           options: [/*{value:'',label:''}*/],
+          backUpOptions: [], //初始化 备份 options
           value: '',
           elementsInfo: [/*{
             id: '',
@@ -122,6 +123,8 @@
           content: { xpath: '', content: '' } // 模板标题
         },
         templateContentKeys: ['title','author','createdAt','content'],
+        // 当前网源已经绑定的模板ID
+        currentTemplatesByWebsite: [],
         // 当前 元素盒子 及 状态数据存储
         current: {
            bodyStyleElem: null, // body盒子内容
@@ -151,11 +154,14 @@
         if(!item) return;
         // this.userInfo.token = item.loginInfo.token
       });
-
       
     },
     mounted() {
-      this.initEvent();
+      chrome.storage.sync.get('listTemplateIndexStatus',(item) => {
+        if(item.listTemplateIndexStatus == 2){
+          this.initEvent();
+        }
+      })
     },
     methods: {
       initEvent(){
@@ -173,7 +179,7 @@
             this.userId = item.loginInfo.userId
             this.userInfo = item.loginInfo.userInfo
             this.userInfo.token = item.loginInfo.token;
-            // console.log(item.loginInfo, this.userInfo)
+            console.log(this.userInfo)
             
             // 1. 获取网源列表
             this.initRequest();
@@ -194,8 +200,9 @@
           console.log(response)
           if(response.code == 0){
             this.webSource.options = [];
+            
             response.data.forEach(v => {
-              this.webSource.options.push({ label: v.name, value: v.id });
+              this.webSource.options.push({ label: v.name, value: v.id, templateIds: v.websiteModuleTemplatesId });
             });
             // 初始化显示第一个网源
             if(this.webSource.options.length > 0){
@@ -223,8 +230,10 @@
           if(response.code == 0){
             this.templateList.options = [];
             this.templateList.elementsInfo = [];
+            
             response.data.forEach(v => {
               this.templateList.options.push({ label: v.name, value: v.id });
+              this.templateList.backUpOptions.push({ label: v.name, value: v.id });
               // 获取当前模板对应的xpath信息
               this.templateList.elementsInfo.push({
                 name: v.name,
@@ -238,15 +247,23 @@
                 websiteModulesId: v.websiteModulesId,
               });
             });
+           
             // 新增模板内容
+            this.templateList.backUpOptions.push({ label: '新增模板', value: 'add-template-content' });
             this.templateList.options.push({ label: '新增模板', value: 'add-template-content' });
+             console.log(this.templateList);
+            //  debugger 
 
             // 遍历xpath信息 获取元素 自动选择模板
             this.eachXpathElements();
 
+            // 检测网源和模板的匹配度
+            this.getChangeWebsite();
+
           }else{
             this.$message({ type:'error', message: response.msg, showClose: true});
           }
+          
         });
 
       },
@@ -286,6 +303,7 @@
         // 确定是否有匹配 0 全部不匹配
         if( this.templateList.elementsInfo.length === 0 || this.templateList.elementsInfo[0].checkNumber <= 0){
           // 全部不匹配 选择新增模板
+          // this.templateList.options.push({ label: '新增模板', value: 'add-template-content' });
           this.templateList.value = "add-template-content";
           // 清空所有页面上的 红色边框焦点
           this.clearTemplateRedActiveBox();
@@ -343,6 +361,27 @@
           this.templateFormData[key].xpath = '';
         })
 
+      },
+      // 选择网源内容
+      getChangeWebsite(){
+        console.log(this.webSource.options)
+        this.currentTemplatesByWebsite = this.webSource.options.filter(v => (v.value == this.webSource.value))[0].templateIds;
+        if(this.currentTemplatesByWebsite && this.currentTemplatesByWebsite.length > 0){
+          console.log(this.currentTemplatesByWebsite)
+
+          // 初始化未绑定状态
+          this.templateList.options = JSON.parse(JSON.stringify(this.templateList.backUpOptions));
+
+          // 获取绑定的状态
+          this.currentTemplatesByWebsite.forEach(v1 => {
+            // 遍历当前模板ID 修改当前已匹配的模板的文字
+            this.templateList.options.forEach((v,index) => {
+              if(v.value == v1){
+                this.templateList.options[index].label = v.label + '(已绑定)';
+              }
+            });
+          })
+        }
       },
       // 选择模板内容
       getChangeTemplate(){
@@ -516,7 +555,12 @@
            // 请求 绑定网站
            chrome.runtime.sendMessage({ data:{ method:'post', body: body1, url: url1, headers }, event:'requestJsonData', eventName:'绑定网源'}, (response) => {
              if(response.code == 0){
-               this.$message({type:'success',message:'绑定网源成功',showClose:true});
+              this.$message({type:'success',message:'绑定网源成功',showClose:true});
+              setTimeout(() => {
+                global.location.reload();
+              }, 500)
+             }else{
+               this.$message({type:'error',message:response.msg,showClose:true});
              }
              console.log(response);
            });
@@ -528,7 +572,7 @@
         const xpathKeys = ['title','author','createdAt','content'];
         // 2. 基础的其他参数
         let basicConfig = {
-          websiteAttrId:"", sysUserId: this.userInfo.userInfo.userId, websiteModulesId: [this.webSource.value], status: "VAILD", name: this.templateFormData.name
+          websiteAttrId:"", sysUserId: this.userInfo.userId, websiteModulesId: [this.webSource.value], status: "VAILD", name: this.templateFormData.name
         };
         // 3. 获取xpqathConfig
         let basicXpathConfig = (() => {
@@ -549,6 +593,11 @@
         chrome.runtime.sendMessage({ data:{ method:'post', body: resultConfig, url, headers }, event:'requestJsonData', eventName:'新增网源模板'}, (response) => {
           if(response.code == 0){
             this.$message({type:'success',message:'新增模板并绑定成功',showClose:true});
+            setTimeout(() => {
+              global.location.reload();
+            }, 500)
+          }else{
+            this.$message({type:'error',message:response.msg,showClose:true});
           }
         })
         

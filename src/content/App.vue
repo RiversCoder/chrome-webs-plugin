@@ -1,11 +1,11 @@
 <template>
   <div id="kedun_web_plugin" v-show="onoff">
-    <section >
+    <section v-if="refresh">
       <!-- 网源插件列表 -->
-      <WebList v-show="status == 1"></WebList>
+      <WebList v-if="status == 1"></WebList>
 
       <!-- 网站模板 -->
-      <webTemplate v-show="status == 2"></webTemplate>
+      <webTemplate v-if="status == 2"></webTemplate>
     </section>
 
     <span class="kedun_web_plugin_dragBox el-icon-position" id="kedun_web_plugin_dragBox" ></span>
@@ -22,7 +22,8 @@ export default {
   data() {
     return {
       onoff: false,
-      status: 1 // 1 代表网源插件表单框 2 代表网站模板盒子
+      status: 1,  // 1 代表网源插件表单框 2 代表网站模板盒子
+      refresh: true,
     };
   },
   components: {
@@ -39,9 +40,25 @@ export default {
 
     // 初始化拖拽
     this.initDrag();
-
   },
   methods:{
+    // 刷新页面内容
+    refeshContent(){
+      this.refresh = false;
+      setTimeout(() => {
+        this.refresh = true;
+        // 初始化相关的状态
+        this.init();
+        this.initEvent();
+
+        // 初始化验证token
+        this.initCheckToken();
+
+        // 初始化拖拽
+        this.initDrag();
+
+      }, 500);
+    },
     // 初始化方法 本地存储的一些状态都可以放在 init 方法里面
     init(){
       // 获取当前盒子的的状态
@@ -64,6 +81,9 @@ export default {
               break;
             case 'popup-content-status':
               this.toggleBoxContent(request.data);
+              break;
+            case 'page-content-refresh':
+              this.refeshContent();
               break;
           }
           // sendResponse('我是后台，我已收到你的消息：' + JSON.stringify(request));

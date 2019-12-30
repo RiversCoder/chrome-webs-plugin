@@ -28,6 +28,15 @@ export default {
     // this.init()
   },
   methods: {
+    // 发送消息到页面
+    sendMessageToContentScript(message, callback){
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            chrome.tabs.sendMessage(tabs[0].id, message, function(response)
+            {
+                if(callback) callback(response);
+            });
+        });
+    },
     init() {
       // 获取当前登录状态 { loginStatus: true, token: token, userName: data.userName }
       chrome.storage.sync.get({loginInfo: {}},(item) => {
@@ -96,10 +105,16 @@ export default {
               userInfo: data,
               userId: data.userId,
             };
-            
+
             this.$store.commit('changeuserInfo', info);
             chrome.storage.sync.set({loginInfo:info});
             this.$router.push("switchPage");
+
+            // 通知页面更新
+            const event = { event: 'page-content-refresh' };
+            this.sendMessageToContentScript({ ...event }, function(response) {
+                console.log('收到来自页面脚本的回复：' + response);
+            });
           }
         })
         .catch(error => {
