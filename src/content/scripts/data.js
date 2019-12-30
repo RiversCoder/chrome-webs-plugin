@@ -134,7 +134,12 @@ export function readXPath(element) {
 
 // 通过 xpath 获取 元素
 export function getElemByXpath(STR_XPATH) {
-    var xresult = document.evaluate(STR_XPATH, document, null, XPathResult.ANY_TYPE, null);
+    var xresult = null;
+    try{
+        xresult = document.evaluate(STR_XPATH, document, null, XPathResult.ANY_TYPE, null);
+    }catch(e){
+        return null;
+    }
     
     /*var xnodes = [];
     var xres;

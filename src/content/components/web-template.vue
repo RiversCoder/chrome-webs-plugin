@@ -187,7 +187,7 @@
         let url = `${this.netService}web-module/domain?domain=${domain}`;
         let headers = { system: 'S11SU01', token: this.userInfo.token };
         console.log(headers)
-        debugger
+        // debugger
         
         // 获取网源列表
         chrome.runtime.sendMessage({ data:{ url, headers }, event:'requestJsonData', eventName:'请求：获取网源列表'}, (response) => {
@@ -251,7 +251,14 @@
 
       },
       getElebyXpath(xpath) {
-        var result = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null);
+        var result = null;
+        try{
+          result = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null);
+        }catch(e){
+          // console.log(e);
+          return null;
+        }
+
         return result.iterateNext()
       },
       // 遍历xpath信息 获取元素 自动选择模板
@@ -263,7 +270,7 @@
         this.templateList.elementsInfo.forEach(v => {
           match_times = 0;
           xpath_keys.forEach(key => {
-            if(v[key] && this.getElebyXpath(v[key])){
+            if(v[key] && this.getElebyXpath(v[key])) {
               match_times += 1;
             }
           })
@@ -301,7 +308,8 @@
         this.templateContentKeys.forEach(key => {
           try{
             ele = getElemByXpath(content[key+'Xpath']);
-          }catch(e){ /* console.log(e); */ }
+            console.log('123');
+          }catch(e){  console.log(e);  }
           if(ele){
             $(ele).addClass('ws-grab-class-'+key);
             this.templateFormData[key].content = ele.innerHTML;
